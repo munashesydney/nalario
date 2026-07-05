@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import TextareaAutosize from "react-textarea-autosize";
 import { CanvasElement as CanvasElementType } from "../../lib/types/canvas";
 import { Image, Trash2, RotateCw } from "lucide-react";
 import {
   useDrag,
   useResize,
-  useTextAutoSize,
   useRotate,
 } from "../../hooks/canvas";
 import type { ResizeHandle } from "../../hooks/canvas";
@@ -41,6 +41,17 @@ export function DraggableElement({
   const [editContent, setEditContent] = useState(element.content || "");
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(
+        textareaRef.current.value.length,
+        textareaRef.current.value.length
+      );
+    }
+  }, [isEditing]);
 
   const isText = element.type === "text";
 
@@ -62,8 +73,6 @@ export function DraggableElement({
     elementRef,
     onUpdate,
   });
-
-  useTextAutoSize({ element, isText, textContentRef, onUpdate });
 
   const { handleRotateStart } = useRotate({ element, elementRef, onUpdate });
 
@@ -121,48 +130,36 @@ export function DraggableElement({
               backgroundColor: element.style?.backgroundColor || "transparent",
             }}
           >
-            {isEditing ? (
-              <textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                onBlur={handleBlur}
-                onKeyDown={(e) => {
-                  e.stopPropagation();
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleBlur();
-                  }
-                }}
-                className="w-full bg-transparent border-none outline-none resize-none text-zinc-900"
-                style={{
-                  fontSize: element.style?.fontSize,
-                  fontWeight: element.style?.fontWeight,
-                  fontFamily: element.style?.fontFamily,
-                  fontStyle: element.style?.fontStyle,
-                  textDecoration: element.style?.textDecoration,
-                  textAlign: element.style?.textAlign,
-                  color: element.style?.color,
-                  overflow: "hidden",
-                }}
-                rows={1}
-                autoFocus
-              />
-            ) : (
-              <span
-                className="text-zinc-900 whitespace-pre-wrap break-words"
-                style={{
-                  fontSize: element.style?.fontSize,
-                  fontWeight: element.style?.fontWeight,
-                  fontFamily: element.style?.fontFamily,
-                  fontStyle: element.style?.fontStyle,
-                  textDecoration: element.style?.textDecoration,
-                  textAlign: element.style?.textAlign,
-                  color: element.style?.color,
-                }}
-              >
-                {element.content}
-              </span>
-            )}
+            <TextareaAutosize
+              ref={textareaRef}
+              value={isEditing ? editContent : element.content}
+              onChange={(e) => setEditContent(e.target.value)}
+              onBlur={handleBlur}
+              onKeyDown={(e) => {
+                e.stopPropagation();
+              }}
+              readOnly={!isEditing}
+              onHeightChange={(height) => {
+                if (height !== element.dimensions.height) {
+                  onUpdate({
+                    dimensions: { ...element.dimensions, height },
+                  });
+                }
+              }}
+              className={`w-full bg-transparent border-none outline-none resize-none text-zinc-900 ${
+                !isEditing ? "pointer-events-none" : ""
+              }`}
+              style={{
+                fontSize: element.style?.fontSize,
+                fontWeight: element.style?.fontWeight,
+                fontFamily: element.style?.fontFamily,
+                fontStyle: element.style?.fontStyle,
+                textDecoration: element.style?.textDecoration,
+                textAlign: element.style?.textAlign,
+                color: element.style?.color,
+                overflow: "hidden",
+              }}
+            />
           </div>
         );
 

@@ -35,6 +35,7 @@ export function useResize({
         width: elementRef.current?.offsetWidth ?? element.dimensions.width,
         height: elementRef.current?.offsetHeight ?? element.dimensions.height,
       };
+      const startFontSize = element.style?.fontSize ?? 16;
 
       const handleMouseMove = (ev: MouseEvent) => {
         const canvas = elementRef.current?.closest("[data-canvas]");
@@ -71,13 +72,40 @@ export function useResize({
             break;
         }
 
+        let newStyle = element.style;
+
+        if (element.type === "text") {
+          const scaleX = newDims.width / startDims.width;
+          const scaleY = newDims.height / startDims.height;
+          // Use the scale that is changing more to determine the ratio
+          const ratio = Math.abs(scaleX - 1) > Math.abs(scaleY - 1) ? scaleX : scaleY;
+          
+          newDims.width = startDims.width * ratio;
+          newDims.height = startDims.height * ratio;
+
+          // Re-adjust position based on the proportional dimensions
+          if (handle === "tl" || handle === "bl") {
+            newPos.x = startPos.x + (startDims.width - newDims.width);
+          }
+          if (handle === "tl" || handle === "tr") {
+            newPos.y = startPos.y + (startDims.height - newDims.height);
+          }
+
+          if (startFontSize) {
+            newStyle = {
+              ...element.style,
+              fontSize: Math.max(1, Math.round(startFontSize * ratio)),
+            };
+          }
+        }
+
         newDims.width = Math.min(newDims.width, canvasBounds.width - newPos.x);
         newDims.height = Math.min(
           newDims.height,
           canvasBounds.height - newPos.y,
         );
 
-        onUpdate({ position: newPos, dimensions: newDims });
+        onUpdate({ position: newPos, dimensions: newDims, ...(newStyle && { style: newStyle }) });
       };
 
       const handleMouseUp = () => {
