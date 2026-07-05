@@ -30,6 +30,11 @@ const CORNERS: { pos: string; handle: ResizeHandle }[] = [
   { pos: "-bottom-1 -right-1", handle: "br" },
 ];
 
+const SIDES: { pos: string; handle: ResizeHandle; className: string }[] = [
+  { pos: "top-1/2 -left-1.5 -translate-y-1/2", handle: "l", className: "w-1.5 h-4" },
+  { pos: "top-1/2 -right-1.5 -translate-y-1/2", handle: "r", className: "w-1.5 h-4" },
+];
+
 export function DraggableElement({
   element,
   isSelected,
@@ -298,6 +303,17 @@ export function DraggableElement({
                   handle === "tl" || handle === "br"
                     ? "nwse-resize"
                     : "nesw-resize",
+              }}
+            />
+          ))}
+
+          {isText && SIDES.map(({ pos, handle, className }) => (
+            <div
+              key={handle}
+              onMouseDown={(e) => handleResizeStart(e, handle)}
+              className={`absolute bg-white border border-zinc-900 rounded-full ${className} ${pos}`}
+              style={{
+                cursor: "ew-resize",
               }}
             />
           ))}

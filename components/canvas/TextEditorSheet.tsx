@@ -77,11 +77,13 @@ export function TextEditorSheet() {
               }
               className="w-16 text-sm border border-zinc-200 rounded-none px-1.5 py-1 bg-white text-zinc-800 focus:outline-none focus:border-zinc-400 text-center"
             >
-              {FONT_SIZES.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
+              {Array.from(new Set([...FONT_SIZES, style.fontSize ?? 24]))
+                .sort((a, b) => a - b)
+                .map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
             </select>
           </div>
         </fieldset>

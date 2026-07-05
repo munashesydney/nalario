@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { CanvasElement as CanvasElementType } from "../../lib/types/canvas";
 
-export type ResizeHandle = "tl" | "tr" | "bl" | "br";
+export type ResizeHandle = "tl" | "tr" | "bl" | "br" | "l" | "r";
 
 interface UseResizeParams {
   element: CanvasElementType;
@@ -70,11 +70,18 @@ export function useResize({
             newDims.width = Math.max(MIN_DIMS.width, startDims.width + dx);
             newDims.height = Math.max(MIN_DIMS.height, startDims.height + dy);
             break;
+          case "l":
+            newPos.x = Math.max(0, startPos.x + dx);
+            newDims.width = Math.max(MIN_DIMS.width, startDims.width - dx);
+            break;
+          case "r":
+            newDims.width = Math.max(MIN_DIMS.width, startDims.width + dx);
+            break;
         }
 
         let newStyle = element.style;
 
-        if (element.type === "text") {
+        if (element.type === "text" && handle !== "l" && handle !== "r") {
           const scaleX = newDims.width / startDims.width;
           const scaleY = newDims.height / startDims.height;
           // Use the scale that is changing more to determine the ratio
