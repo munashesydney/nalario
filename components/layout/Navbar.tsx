@@ -21,9 +21,34 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { cn } from "../../lib/utils";
+import { useCanvasStore } from "../../lib/store/canvas-store";
+import { exportAsPNG, exportAsSVG, exportAsPDF } from "../../lib/services/export-service";
 
 export function Navbar({ chatPanelOpen = false }: { chatPanelOpen?: boolean }) {
   const [projectName] = useState("Untitled Project");
+  const { deselectAll } = useCanvasStore();
+
+  const handleExport = async (format: 'png' | 'svg' | 'pdf') => {
+    // 1. Deselect everything so handles/borders are hidden
+    deselectAll();
+
+    // Give React a frame to update the DOM (hide the borders)
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    
+    // 2. Grab the canvas node
+    const canvasNode = document.querySelector('[data-canvas]') as HTMLElement;
+    if (!canvasNode) return;
+
+    // 3. Export
+    const filename = `${projectName.replace(/\s+/g, '-').toLowerCase()}`;
+    if (format === 'png') {
+      await exportAsPNG(canvasNode, `${filename}.png`);
+    } else if (format === 'svg') {
+      await exportAsSVG(canvasNode, `${filename}.svg`);
+    } else if (format === 'pdf') {
+      await exportAsPDF(canvasNode, `${filename}.pdf`);
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-12 bg-white">
@@ -76,15 +101,15 @@ export function Navbar({ chatPanelOpen = false }: { chatPanelOpen?: boolean }) {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuItem className="gap-2.5">
+            <DropdownMenuItem className="gap-2.5" onClick={() => handleExport('png')}>
               <Download className="w-4 h-4" />
               Export as PNG
             </DropdownMenuItem>
-            <DropdownMenuItem className="gap-2.5">
+            <DropdownMenuItem className="gap-2.5" onClick={() => handleExport('svg')}>
               <Download className="w-4 h-4" />
               Export as SVG
             </DropdownMenuItem>
-            <DropdownMenuItem className="gap-2.5">
+            <DropdownMenuItem className="gap-2.5" onClick={() => handleExport('pdf')}>
               <Download className="w-4 h-4" />
               Export as PDF
             </DropdownMenuItem>
