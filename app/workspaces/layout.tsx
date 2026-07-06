@@ -64,7 +64,7 @@ export default function WorkspacesLayout({
           <button className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors">
             <Bell className="w-5 h-5" />
           </button>
-          <div className="w-8 h-8 bg-zinc-900 flex items-center justify-center text-white text-xs font-bold" />
+          <div className="w-8 h-8 bg-zinc-900 flex items-center justify-center text-white text-sm font-bold">M</div>
           <button className="md:hidden p-2 text-zinc-400 hover:text-zinc-900 transition-colors">
             <Menu className="w-5 h-5" />
           </button>

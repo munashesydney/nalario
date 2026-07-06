@@ -57,7 +57,7 @@ export default function WorkspaceHomePage() {
           
           <Link 
             href="/"
-            className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 text-white px-6 py-3 rounded-none font-medium transition-colors"
+            className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-none font-medium transition-colors"
           >
             <Plus className="w-5 h-5" />
             New Project
@@ -97,7 +97,7 @@ export default function WorkspaceHomePage() {
                 </div>
                 {/* Hover overlay for open button */}
                 <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="bg-zinc-900 text-white font-semibold px-4 py-2 rounded-none shadow-sm translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                  <span className="bg-zinc-900 text-white font-semibold px-4 py-2 rounded-none shadow-sm translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                     Open Project
                   </span>
                 </div>

@@ -126,7 +126,7 @@ export default function AddWorkspacePage() {
                   <button
                     onClick={handleNext}
                     disabled={!workspaceName.trim()}
-                    className="w-full bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-200 disabled:text-zinc-400 text-white font-semibold py-3 rounded-none transition-all"
+                    className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-zinc-200 disabled:text-zinc-400 text-white font-semibold py-3 rounded-none transition-all"
                   >
                     Continue
                   </button>
@@ -194,7 +194,7 @@ export default function AddWorkspacePage() {
                   </button>
                   <button
                     onClick={handleNext}
-                    className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold py-3 rounded-none transition-all"
+                    className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-none transition-all"
                   >
                     Skip & Create
                   </button>
@@ -221,7 +221,7 @@ export default function AddWorkspacePage() {
 
                 <button
                   onClick={handleCreate}
-                  className="bg-zinc-900 hover:bg-zinc-800 text-white font-semibold py-3 px-8 rounded-none transition-all"
+                  className="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-8 rounded-none transition-all"
                 >
                   Enter Workspace
                 </button>
