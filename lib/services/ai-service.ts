@@ -72,6 +72,7 @@ export function processAICommand(input: string): {
       text: 'text block',
       image: 'image',
       shape: 'shape',
+      group: 'group',
     };
 
     return {

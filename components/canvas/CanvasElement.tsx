@@ -18,6 +18,7 @@ import {
 interface DraggableElementProps {
   element: CanvasElementType;
   isSelected: boolean;
+  isMultiSelected?: boolean;
   onSelect: () => void;
   onUpdate: (updates: Partial<CanvasElementType>) => void;
   canvasBounds: { width: number; height: number };
@@ -38,6 +39,7 @@ const SIDES: { pos: string; handle: ResizeHandle; className: string }[] = [
 export function DraggableElement({
   element,
   isSelected,
+  isMultiSelected,
   onSelect,
   onUpdate,
   canvasBounds,
@@ -107,6 +109,23 @@ export function DraggableElement({
   // --- Render ---
 
   const renderContent = () => {
+    if (element.type === "group" && element.children) {
+      return (
+        <div className="w-full h-full relative pointer-events-none">
+          {element.children.map((child) => (
+            <DraggableElement
+              key={child.id}
+              element={child}
+              isSelected={false}
+              onSelect={() => {}}
+              onUpdate={() => {}}
+              canvasBounds={canvasBounds}
+            />
+          ))}
+        </div>
+      );
+    }
+
     switch (element.type) {
       case "image":
         return (
@@ -320,7 +339,9 @@ export function DraggableElement({
         </>
       )}
 
-
+      {isMultiSelected && (
+        <div className="absolute -inset-0.5 border-2 border-pink-500/50 pointer-events-none" />
+      )}
 
       {renderContent()}
     </div>

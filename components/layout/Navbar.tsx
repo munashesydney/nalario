@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Layers,
   Undo,
@@ -22,13 +22,14 @@ import {
 } from "../ui/dropdown-menu";
 import { cn } from "../../lib/utils";
 import { useCanvasStore } from "../../lib/store/canvas-store";
-import { exportAsPNG, exportAsSVG, exportAsPDF } from "../../lib/services/export-service";
+import { exportAsPNG, exportAsSVG, exportAsPDF, exportAsJSON, importFromJSON } from "../../lib/services/export-service";
 
 export function Navbar({ chatPanelOpen = false }: { chatPanelOpen?: boolean }) {
   const [projectName] = useState("Untitled Project");
-  const { deselectAll } = useCanvasStore();
+  const { elements, setElements, deselectAll } = useCanvasStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleExport = async (format: 'png' | 'svg' | 'pdf') => {
+  const handleExport = async (format: 'png' | 'svg' | 'pdf' | 'json') => {
     // 1. Deselect everything so handles/borders are hidden
     deselectAll();
 
@@ -47,7 +48,22 @@ export function Navbar({ chatPanelOpen = false }: { chatPanelOpen?: boolean }) {
       await exportAsSVG(canvasNode, `${filename}.svg`);
     } else if (format === 'pdf') {
       await exportAsPDF(canvasNode, `${filename}.pdf`);
+    } else if (format === 'json') {
+      exportAsJSON(elements, `${filename}.json`);
     }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const importedElements = await importFromJSON(file);
+      setElements(importedElements);
+    } catch (err) {
+      alert("Failed to import JSON file. Please ensure it's a valid canvas project.");
+    }
+    // Clear input so the same file can be imported again if needed
+    e.target.value = '';
   };
 
   return (
@@ -114,6 +130,15 @@ export function Navbar({ chatPanelOpen = false }: { chatPanelOpen?: boolean }) {
               Export as PDF
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem className="gap-2.5" onClick={() => handleExport('json')}>
+              <Download className="w-4 h-4" />
+              Export as JSON
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2.5" onClick={() => fileInputRef.current?.click()}>
+              <Download className="w-4 h-4 rotate-180" />
+              Import from JSON
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem className="gap-2.5">
               <Share className="w-4 h-4" />
               Share link
@@ -133,6 +158,15 @@ export function Navbar({ chatPanelOpen = false }: { chatPanelOpen?: boolean }) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        
+        {/* Hidden file input for JSON import */}
+        <input 
+          type="file" 
+          accept=".json,application/json"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleImport}
+        />
       </div>
     </header>
   );

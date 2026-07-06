@@ -59,6 +59,7 @@ interface CanvasStore {
   activePanel: "text" | "shape" | null;
   panelPosition: "left" | "right";
   activeSnapLines: SnapLine[];
+  multiSelectedIds: string[];
   messages: AIMessage[];
 
   addElement: (type: ElementType, position?: { x: number; y: number }) => void;
@@ -79,7 +80,11 @@ interface CanvasStore {
   setPanelPosition: (position: "left" | "right") => void;
   setActiveSnapLines: (lines: SnapLine[]) => void;
   reorderElement: (id: string, action: "up" | "down" | "front" | "back") => void;
+  setMultiSelectedIds: (ids: string[]) => void;
+  groupElements: () => void;
+  ungroupElement: (groupId: string) => void;
   addMessage: (role: "user" | "assistant", content: string) => void;
+  setElements: (elements: CanvasElement[]) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set, get) => ({
@@ -91,6 +96,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   activePanel: null,
   panelPosition: "left",
   activeSnapLines: [],
+  multiSelectedIds: [],
   messages: SEED_MESSAGES,
 
   addElement: (type, position) => {
@@ -139,6 +145,10 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     }));
   },
 
+  setElements: (elements) => {
+    set({ elements, selectedId: null, multiSelectedIds: [], activePanel: null });
+  },
+
   updateElement: (id, updates) => {
     set((state) => ({
       elements: state.elements.map((el) =>
@@ -151,6 +161,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     set((state) => ({
       elements: state.elements.filter((el) => el.id !== id),
       selectedId: state.selectedId === id ? null : state.selectedId,
+      multiSelectedIds: state.multiSelectedIds.filter((mId) => mId !== id),
       activePanel: state.selectedId === id ? null : state.activePanel,
     }));
   },
@@ -158,6 +169,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   selectElement: (id) => {
     set((state) => ({
       selectedId: id,
+      multiSelectedIds: [],
       activePanel: state.selectedId !== id ? null : state.activePanel,
       elements: state.elements.map((el) => ({
         ...el,
@@ -169,6 +181,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   deselectAll: () => {
     set((state) => ({
       selectedId: null,
+      multiSelectedIds: [],
       activePanel: null,
       elements: state.elements.map((el) => ({ ...el, selected: false })),
     }));
@@ -217,6 +230,87 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
       }
 
       return { elements: newElements };
+    });
+  },
+
+  setMultiSelectedIds: (ids) => {
+    set({ multiSelectedIds: ids, selectedId: null, activePanel: null });
+  },
+
+  groupElements: () => {
+    set((state) => {
+      if (state.multiSelectedIds.length < 2) return state;
+
+      const children = state.elements.filter(el => state.multiSelectedIds.includes(el.id));
+      if (children.length === 0) return state;
+
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+
+      children.forEach(c => {
+        if (c.position.x < minX) minX = c.position.x;
+        if (c.position.y < minY) minY = c.position.y;
+        if (c.position.x + c.dimensions.width > maxX) maxX = c.position.x + c.dimensions.width;
+        if (c.position.y + c.dimensions.height > maxY) maxY = c.position.y + c.dimensions.height;
+      });
+
+      // Update children relative to new group
+      const relativeChildren = children.map(c => ({
+        ...c,
+        position: {
+          x: c.position.x - minX,
+          y: c.position.y - minY,
+        }
+      }));
+
+      const group: CanvasElement = {
+        id: generateId(),
+        type: "group",
+        position: { x: minX, y: minY },
+        dimensions: { width: maxX - minX, height: maxY - minY },
+        children: relativeChildren,
+        selected: true,
+      };
+
+      const newElements = state.elements.filter(el => !state.multiSelectedIds.includes(el.id));
+      newElements.push(group);
+
+      return {
+        elements: newElements,
+        selectedId: group.id,
+        multiSelectedIds: [],
+      };
+    });
+  },
+
+  ungroupElement: (groupId) => {
+    set((state) => {
+      const groupIdx = state.elements.findIndex(el => el.id === groupId);
+      if (groupIdx === -1) return state;
+
+      const group = state.elements[groupIdx];
+      if (group.type !== "group" || !group.children) return state;
+
+      const newElements = [...state.elements];
+      newElements.splice(groupIdx, 1);
+
+      const restoredChildren = group.children.map(c => ({
+        ...c,
+        position: {
+          x: c.position.x + group.position.x,
+          y: c.position.y + group.position.y,
+        }
+      }));
+
+      newElements.push(...restoredChildren);
+
+      return {
+        elements: newElements,
+        selectedId: null,
+        multiSelectedIds: restoredChildren.map(c => c.id),
+      };
     });
   },
 

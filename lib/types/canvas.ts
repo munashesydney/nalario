@@ -1,4 +1,4 @@
-export type ElementType = "image" | "text" | "shape";
+export type ElementType = "image" | "text" | "shape" | "group";
 
 export type ShapeKind =
   "rectangle" | "circle" | "ellipse" | "triangle" | "line" | "custom";
@@ -22,6 +22,7 @@ export interface CanvasElement {
   content?: string;
   style?: ElementStyle;
   selected?: boolean;
+  children?: CanvasElement[];
 }
 
 export type TextAlign = "left" | "center" | "right";

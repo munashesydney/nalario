@@ -15,6 +15,9 @@ export function Canvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState({ x: 0, y: 0 });
+  const [selectionEnd, setSelectionEnd] = useState({ x: 0, y: 0 });
   
   const {
     elements,
@@ -26,25 +29,103 @@ export function Canvas() {
     deleteElement,
     addElement,
     activeSnapLines,
+    setMultiSelectedIds,
+    multiSelectedIds,
   } = useCanvasStore();
 
-  const handleCanvasClick = (e: React.MouseEvent) => {
+  const handleCanvasMouseDown = (e: React.MouseEvent) => {
     if (e.target === canvasRef.current) {
-      deselectAll();
-
       if (activeTool !== "select" && activeTool !== "image") {
+        deselectAll();
         const canvas = canvasRef.current;
         if (!canvas) return;
 
         const rect = canvas.getBoundingClientRect();
-        const scale = CANVAS_WIDTH / rect.width;
-        const x = (e.clientX - rect.left) * scale;
-        const y = (e.clientY - rect.top) * scale;
+        const s = CANVAS_WIDTH / rect.width;
+        const x = (e.clientX - rect.left) * s;
+        const y = (e.clientY - rect.top) * s;
 
         addElement(activeTool, { x: x - 75, y: y - 40 });
+        return;
       }
+
+      // Start marquee selection
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const s = CANVAS_WIDTH / rect.width;
+      const x = (e.clientX - rect.left) * s;
+      const y = (e.clientY - rect.top) * s;
+      
+      setIsSelecting(true);
+      setSelectionStart({ x, y });
+      setSelectionEnd({ x, y });
     }
   };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isSelecting || !canvasRef.current) return;
+      
+      const rect = canvasRef.current.getBoundingClientRect();
+      const s = CANVAS_WIDTH / rect.width;
+      const x = (e.clientX - rect.left) * s;
+      const y = (e.clientY - rect.top) * s;
+      
+      setSelectionEnd({
+        x: Math.max(0, Math.min(x, CANVAS_WIDTH)),
+        y: Math.max(0, Math.min(y, CANVAS_HEIGHT)),
+      });
+    };
+
+    const handleMouseUp = () => {
+      if (!isSelecting) return;
+      setIsSelecting(false);
+
+      const minX = Math.min(selectionStart.x, selectionEnd.x);
+      const maxX = Math.max(selectionStart.x, selectionEnd.x);
+      const minY = Math.min(selectionStart.y, selectionEnd.y);
+      const maxY = Math.max(selectionStart.y, selectionEnd.y);
+
+      // Only count as a selection if they actually dragged a bit (e.g., > 5px)
+      if (maxX - minX > 5 || maxY - minY > 5) {
+        const selected = elements.filter((el) => {
+          const elMinX = el.position.x;
+          const elMaxX = el.position.x + el.dimensions.width;
+          const elMinY = el.position.y;
+          const elMaxY = el.position.y + el.dimensions.height;
+
+          // Check for intersection
+          return !(
+            maxX < elMinX ||
+            minX > elMaxX ||
+            maxY < elMinY ||
+            minY > elMaxY
+          );
+        });
+
+        if (selected.length > 0) {
+          setMultiSelectedIds(selected.map((s) => s.id));
+        } else {
+          deselectAll();
+        }
+      } else {
+        // Just a click on the canvas background
+        deselectAll();
+      }
+    };
+
+    if (isSelecting) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isSelecting, selectionStart, selectionEnd, elements, setMultiSelectedIds, deselectAll]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -118,7 +199,7 @@ export function Canvas() {
             <div
               ref={canvasRef}
               data-canvas
-              onClick={handleCanvasClick}
+              onMouseDown={handleCanvasMouseDown}
               className="absolute inset-0"
             >
               {elements.map((element) => (
@@ -126,6 +207,7 @@ export function Canvas() {
                   key={element.id}
                   element={element}
                   isSelected={selectedId === element.id}
+                  isMultiSelected={multiSelectedIds.includes(element.id)}
                   onSelect={() => selectElement(element.id)}
                   onUpdate={handleElementUpdate(element.id)}
                   canvasBounds={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
@@ -154,6 +236,19 @@ export function Canvas() {
                   }
                 />
               ))}
+
+              {/* Render Marquee Selection Box */}
+              {isSelecting && (
+                <div
+                  className="absolute border border-pink-500 bg-pink-500/20 pointer-events-none z-50"
+                  style={{
+                    left: Math.min(selectionStart.x, selectionEnd.x),
+                    top: Math.min(selectionStart.y, selectionEnd.y),
+                    width: Math.abs(selectionEnd.x - selectionStart.x),
+                    height: Math.abs(selectionEnd.y - selectionStart.y),
+                  }}
+                />
+              )}
 
               {!elements.length && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 pointer-events-none">

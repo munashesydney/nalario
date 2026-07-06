@@ -26,6 +26,7 @@ export function createElement(
     image: { width: 200, height: 150 },
     text: { width: 200, height: 40 },
     shape: { width: 150, height: 150 },
+    group: { width: 0, height: 0 },
   };
 
   const defaults: Record<ElementType, Partial<CanvasElement>> = {
@@ -51,6 +52,7 @@ export function createElement(
     shape: {
       style: {},
     },
+    group: {},
   };
 
   // Apply shape-kind defaults for shapes
