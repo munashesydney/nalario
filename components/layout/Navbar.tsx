@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 import {
   Layers,
   Undo,
@@ -90,16 +91,16 @@ export function Navbar({ chatPanelOpen = false }: { chatPanelOpen?: boolean }) {
       {/* Left: Logo + project name */}
       <div className="h-full px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-zinc-900 flex items-center justify-center">
+          <Link href="/workspaces" className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-80">
+            <div className="w-7 h-7 bg-zinc-900 flex items-center justify-center rounded-md">
               <Layers className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-semibold text-zinc-900 text-sm tracking-tight">
+            <span className="font-semibold text-zinc-900 text-sm tracking-tight group-hover:text-pink-600 transition-colors">
               Canvas
             </span>
-          </div>
+          </Link>
 
-          <div className="h-4 w-px bg-zinc-200" />
+          <div className="h-4 w-px bg-zinc-200 ml-2" />
 
           <div className="flex items-center gap-1 cursor-pointer select-none group">
             <span className="text-sm text-zinc-500 group-hover:text-zinc-700 transition-colors">
