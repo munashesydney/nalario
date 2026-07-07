@@ -43,8 +43,8 @@ export function useResize({
         const canvasRect = canvas.getBoundingClientRect();
         const scale = canvasBounds.width / canvasRect.width;
 
-        const dx = (ev.clientX - startMouse.x) / scale;
-        const dy = (ev.clientY - startMouse.y) / scale;
+        const dx = (ev.clientX - startMouse.x) * scale;
+        const dy = (ev.clientY - startMouse.y) * scale;
 
         let newPos = { ...startPos };
         let newDims = { ...startDims };

@@ -64,10 +64,8 @@ export function useDrag({
         ? (elementRef.current?.offsetHeight ?? element.dimensions.height)
         : element.dimensions.height;
 
-      let newX =
-        e.clientX - canvasRect.left - dragOffset.current.x * scale;
-      let newY =
-        e.clientY - canvasRect.top - dragOffset.current.y * scale;
+      let newX = (e.clientX - canvasRect.left - dragOffset.current.x) * scale;
+      let newY = (e.clientY - canvasRect.top - dragOffset.current.y) * scale;
 
       // Smart Guides & Snapping logic
       const SNAP_THRESHOLD = 5;
