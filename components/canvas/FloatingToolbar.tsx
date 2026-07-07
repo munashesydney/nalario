@@ -26,13 +26,18 @@ export function FloatingToolbar({ scale }: FloatingToolbarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
-  if (!selectedElement && !isMultiSelect) return null;
+  if (!selectedElement && !isMultiSelect && selectedId !== "canvas-background") return null;
 
   // Calculate position for the toolbar
   let left = 0;
   let top = 0;
+  let isBackground = selectedId === "canvas-background";
 
-  if (isMultiSelect) {
+  if (isBackground) {
+    // Put it centered at the top of the canvas
+    left = 20;
+    top = 20;
+  } else if (isMultiSelect) {
     const selectedElements = elements.filter(el => multiSelectedIds.includes(el.id));
     if (selectedElements.length > 0) {
       let minX = Infinity;
@@ -49,19 +54,38 @@ export function FloatingToolbar({ scale }: FloatingToolbarProps) {
     top = selectedElement.position.y - 12;
   }
 
+  // Bound the top position so it doesn't go negative and hide under the navbar
+  // Wait, transform is `translateY(-100%)`.
+  let transform = `scale(${1 / scale}) translateY(-100%)`;
+  if (!isBackground && top * scale < 50) {
+    // If it's too close to the top, put it BELOW the element instead
+    top = selectedElement ? selectedElement.position.y + selectedElement.dimensions.height : top + 24;
+    transform = `scale(${1 / scale}) translateY(12px)`;
+  } else if (isBackground) {
+    transform = `scale(${1 / scale}) translateY(0)`;
+  }
+
   // The toolbar floats slightly above the element
   // We apply a counter-scale so the UI remains consistently sized regardless of canvas zoom
   return (
     <div
-      className="absolute z-50 flex items-center bg-white shadow-xl rounded-lg border border-zinc-200 px-1 py-1"
+      className="absolute z-[60] flex items-center bg-white shadow-xl rounded-lg border border-zinc-200 px-1 py-1"
       style={{
         left,
         top,
-        transform: `scale(${1 / scale}) translateY(-100%)`,
-        transformOrigin: "bottom left",
+        transform,
+        transformOrigin: isBackground ? "top left" : "bottom left",
       }}
     >
-      {isMultiSelect ? (
+      {isBackground ? (
+        <button
+          onClick={() => setActivePanel("background")}
+          className="p-2 hover:bg-zinc-100 rounded-md transition-colors text-zinc-700 flex items-center gap-2 text-sm pr-3 font-medium"
+          title="Background Options"
+        >
+          <PaintBucket className="w-4 h-4 text-pink-500" /> Edit Background
+        </button>
+      ) : isMultiSelect ? (
         <>
           <button
             onClick={groupElements}

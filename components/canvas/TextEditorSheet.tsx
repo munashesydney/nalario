@@ -40,16 +40,16 @@ export function TextEditorSheet({ open }: { open: boolean }) {
       position={panelPosition}
       onClose={() => setActivePanel(null)}
     >
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 min-w-0">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 min-w-0 custom-scrollbar">
         {/* Font Family */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Font Family
           </label>
           <select
             value={style.fontFamily ?? "Inter, sans-serif"}
             onChange={(e) => updateStyle({ fontFamily: e.target.value })}
-            className="block w-full text-sm border border-zinc-200 rounded-none px-2.5 py-1.5 bg-white text-zinc-800 focus:outline-none focus:border-zinc-400"
+            className="block w-full text-sm font-bold border-2 border-zinc-900 rounded-none px-2.5 py-1.5 bg-white text-zinc-900 focus:outline-none focus:border-pink-500 transition-colors"
           >
             {FONT_FAMILIES.map((font) => (
               <option key={font.value} value={font.value}>
@@ -61,7 +61,7 @@ export function TextEditorSheet({ open }: { open: boolean }) {
 
         {/* Font Size */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Font Size
           </label>
           <div className="flex items-center gap-2">
@@ -74,14 +74,14 @@ export function TextEditorSheet({ open }: { open: boolean }) {
               onChange={(e) =>
                 updateStyle({ fontSize: Number(e.target.value) })
               }
-              className="flex-1 h-1.5 accent-zinc-900"
+              className="flex-1 h-1.5 accent-pink-500"
             />
             <select
               value={style.fontSize ?? 24}
               onChange={(e) =>
                 updateStyle({ fontSize: Number(e.target.value) })
               }
-              className="w-16 text-sm border border-zinc-200 rounded-none px-1.5 py-1 bg-white text-zinc-800 focus:outline-none focus:border-zinc-400 text-center"
+              className="w-16 text-sm font-bold border-2 border-zinc-900 rounded-none px-1.5 py-1 bg-white text-zinc-900 focus:outline-none focus:border-pink-500 transition-colors text-center"
             >
               {Array.from(new Set([...FONT_SIZES, style.fontSize ?? 24]))
                 .sort((a, b) => a - b)
@@ -96,7 +96,7 @@ export function TextEditorSheet({ open }: { open: boolean }) {
 
         {/* Font Weight */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Weight
           </label>
           <div className="flex gap-1">
@@ -110,10 +110,10 @@ export function TextEditorSheet({ open }: { open: boolean }) {
                 key={opt.value}
                 onClick={() => updateStyle({ fontWeight: opt.value })}
                 className={cn(
-                  "flex-1 text-xs py-1.5 border transition-colors",
+                  "flex-1 text-xs font-bold py-1.5 border-2 transition-all rounded-none uppercase",
                   (style.fontWeight ?? "600") === opt.value
-                    ? "bg-zinc-900 text-white border-zinc-900"
-                    : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400",
+                    ? "bg-pink-500 text-white border-zinc-900 shadow-[2px_2px_0px_rgba(24,24,27,1)] -translate-y-[1px] -translate-x-[1px] z-10"
+                    : "bg-white text-zinc-900 border-zinc-900 hover:bg-pink-50 hover:-translate-y-[1px] hover:-translate-x-[1px] hover:shadow-[2px_2px_0px_rgba(24,24,27,1)]",
                 )}
               >
                 {opt.label}
@@ -124,7 +124,7 @@ export function TextEditorSheet({ open }: { open: boolean }) {
 
         {/* Style: Italic / Underline / Strikethrough */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Style
           </label>
           <div className="flex gap-1">
@@ -135,10 +135,10 @@ export function TextEditorSheet({ open }: { open: boolean }) {
                 })
               }
               className={cn(
-                "flex-1 text-xs py-1.5 border transition-colors",
+                "flex-1 text-xs font-bold py-1.5 border-2 transition-all rounded-none uppercase",
                 style.fontStyle === "italic"
-                  ? "bg-zinc-900 text-white border-zinc-900"
-                  : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400",
+                  ? "bg-pink-500 text-white border-zinc-900 shadow-[2px_2px_0px_rgba(24,24,27,1)] -translate-y-[1px] -translate-x-[1px] z-10"
+                  : "bg-white text-zinc-900 border-zinc-900 hover:bg-pink-50 hover:-translate-y-[1px] hover:-translate-x-[1px] hover:shadow-[2px_2px_0px_rgba(24,24,27,1)]",
               )}
             >
               <span className="italic">I</span>
@@ -151,10 +151,10 @@ export function TextEditorSheet({ open }: { open: boolean }) {
                 })
               }
               className={cn(
-                "flex-1 text-xs py-1.5 border transition-colors",
+                "flex-1 text-xs font-bold py-1.5 border-2 transition-all rounded-none uppercase",
                 style.textDecoration === "underline"
-                  ? "bg-zinc-900 text-white border-zinc-900"
-                  : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400",
+                  ? "bg-pink-500 text-white border-zinc-900 shadow-[2px_2px_0px_rgba(24,24,27,1)] -translate-y-[1px] -translate-x-[1px] z-10"
+                  : "bg-white text-zinc-900 border-zinc-900 hover:bg-pink-50 hover:-translate-y-[1px] hover:-translate-x-[1px] hover:shadow-[2px_2px_0px_rgba(24,24,27,1)]",
               )}
             >
               <span className="underline">U</span>
@@ -169,10 +169,10 @@ export function TextEditorSheet({ open }: { open: boolean }) {
                 })
               }
               className={cn(
-                "flex-1 text-xs py-1.5 border transition-colors",
+                "flex-1 text-xs font-bold py-1.5 border-2 transition-all rounded-none uppercase",
                 style.textDecoration === "line-through"
-                  ? "bg-zinc-900 text-white border-zinc-900"
-                  : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400",
+                  ? "bg-pink-500 text-white border-zinc-900 shadow-[2px_2px_0px_rgba(24,24,27,1)] -translate-y-[1px] -translate-x-[1px] z-10"
+                  : "bg-white text-zinc-900 border-zinc-900 hover:bg-pink-50 hover:-translate-y-[1px] hover:-translate-x-[1px] hover:shadow-[2px_2px_0px_rgba(24,24,27,1)]",
               )}
             >
               <span className="line-through">S</span>
@@ -182,7 +182,7 @@ export function TextEditorSheet({ open }: { open: boolean }) {
 
         {/* Alignment */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Alignment
           </label>
           <div className="flex gap-1">
@@ -191,10 +191,10 @@ export function TextEditorSheet({ open }: { open: boolean }) {
                 key={opt.value}
                 onClick={() => updateStyle({ textAlign: opt.value })}
                 className={cn(
-                  "flex-1 text-xs py-1.5 border transition-colors",
+                  "flex-1 text-xs font-bold py-1.5 border-2 transition-all rounded-none uppercase",
                   (style.textAlign ?? "left") === opt.value
-                    ? "bg-zinc-900 text-white border-zinc-900"
-                    : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400",
+                    ? "bg-pink-500 text-white border-zinc-900 shadow-[2px_2px_0px_rgba(24,24,27,1)] -translate-y-[1px] -translate-x-[1px] z-10"
+                    : "bg-white text-zinc-900 border-zinc-900 hover:bg-pink-50 hover:-translate-y-[1px] hover:-translate-x-[1px] hover:shadow-[2px_2px_0px_rgba(24,24,27,1)]",
                 )}
               >
                 {opt.label}
@@ -205,7 +205,7 @@ export function TextEditorSheet({ open }: { open: boolean }) {
 
         {/* Text Color */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Text Color
           </label>
           <div className="flex items-center gap-2">
@@ -213,20 +213,20 @@ export function TextEditorSheet({ open }: { open: boolean }) {
               type="color"
               value={style.color ?? "#1f2937"}
               onChange={(e) => updateStyle({ color: e.target.value })}
-              className="w-8 h-8 p-0.5 border border-zinc-200 cursor-pointer bg-white"
+              className="w-8 h-8 p-0 border-2 border-zinc-900 cursor-pointer bg-white rounded-none"
             />
             <input
               type="text"
               value={style.color ?? "#1f2937"}
               onChange={(e) => updateStyle({ color: e.target.value })}
-              className="flex-1 text-sm border border-zinc-200 rounded-none px-2 py-1 bg-white text-zinc-800 font-mono focus:outline-none focus:border-zinc-400"
+              className="flex-1 text-sm font-bold border-2 border-zinc-900 rounded-none px-2 py-1 bg-white text-zinc-900 font-mono focus:outline-none focus:border-pink-500 transition-colors"
             />
           </div>
         </fieldset>
 
         {/* Background Color */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Background Color
           </label>
           <div className="flex items-center gap-2">
@@ -234,20 +234,20 @@ export function TextEditorSheet({ open }: { open: boolean }) {
               type="color"
               value={style.backgroundColor ?? "#ffffff"}
               onChange={(e) => updateStyle({ backgroundColor: e.target.value })}
-              className="w-8 h-8 p-0.5 border border-zinc-200 cursor-pointer bg-white"
+              className="w-8 h-8 p-0 border-2 border-zinc-900 cursor-pointer bg-white rounded-none"
             />
             <input
               type="text"
               value={style.backgroundColor ?? "#ffffff"}
               onChange={(e) => updateStyle({ backgroundColor: e.target.value })}
-              className="flex-1 text-sm border border-zinc-200 rounded-none px-2 py-1 bg-white text-zinc-800 font-mono focus:outline-none focus:border-zinc-400"
+              className="flex-1 text-sm font-bold border-2 border-zinc-900 rounded-none px-2 py-1 bg-white text-zinc-900 font-mono focus:outline-none focus:border-pink-500 transition-colors"
             />
           </div>
         </fieldset>
 
         {/* Rotation */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Rotation
           </label>
           <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export function TextEditorSheet({ open }: { open: boolean }) {
               step={1}
               value={rotation}
               onChange={(e) => updateRotation(Number(e.target.value))}
-              className="flex-1 h-1.5 accent-zinc-900"
+              className="flex-1 h-1.5 accent-pink-500"
             />
             <span className="w-10 text-xs text-zinc-500 text-right tabular-nums">
               {rotation}°
@@ -267,12 +267,12 @@ export function TextEditorSheet({ open }: { open: boolean }) {
         </fieldset>
 
         {/* Inline preview */}
-        <div className="pt-2 border-t border-zinc-100">
-          <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-2">
+        <div className="pt-4 border-t-4 border-zinc-900">
+          <p className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Preview
           </p>
           <div
-            className="p-3 border border-zinc-100 bg-zinc-50"
+            className="p-3 border-2 border-zinc-900 bg-white shadow-[4px_4px_0px_rgba(24,24,27,1)]"
             style={buildTextStyleInline(style)}
           >
             {selectedElement?.content || "Aa"}

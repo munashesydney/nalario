@@ -23,35 +23,13 @@ import {
 } from "../ui/dropdown-menu";
 import { cn } from "../../lib/utils";
 import { useCanvasStore } from "../../lib/store/canvas-store";
+import { useModalStore } from "../../lib/store/modal-store";
 import { exportAsPNG, exportAsSVG, exportAsPDF, exportAsJSON, importFromJSON } from "../../lib/services/export-service";
 
 export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project", workspaceId }: { chatPanelOpen?: boolean, projectName?: string, workspaceId?: string }) {
-  const { elements, setElements, deselectAll } = useCanvasStore();
+  const { setElements, deselectAll } = useCanvasStore();
+  const { openModal } = useModalStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleExport = async (format: 'png' | 'svg' | 'pdf' | 'json') => {
-    // 1. Deselect everything so handles/borders are hidden
-    deselectAll();
-
-    // Give React a frame to update the DOM (hide the borders)
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-    
-    // 2. Grab the canvas node
-    const canvasNode = document.querySelector('[data-canvas]') as HTMLElement;
-    if (!canvasNode) return;
-
-    // 3. Export
-    const filename = `${projectName.replace(/\s+/g, '-').toLowerCase()}`;
-    if (format === 'png') {
-      await exportAsPNG(canvasNode, `${filename}.png`);
-    } else if (format === 'svg') {
-      await exportAsSVG(canvasNode, `${filename}.svg`);
-    } else if (format === 'pdf') {
-      await exportAsPDF(canvasNode, `${filename}.pdf`);
-    } else if (format === 'json') {
-      exportAsJSON(elements, `${filename}.json`);
-    }
-  };
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,23 +107,11 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuItem className="gap-2.5" onClick={() => handleExport('png')}>
+            <DropdownMenuItem className="gap-2.5" onClick={() => openModal('export-project', { projectName })}>
               <Download className="w-4 h-4" />
-              Export as PNG
-            </DropdownMenuItem>
-            <DropdownMenuItem className="gap-2.5" onClick={() => handleExport('svg')}>
-              <Download className="w-4 h-4" />
-              Export as SVG
-            </DropdownMenuItem>
-            <DropdownMenuItem className="gap-2.5" onClick={() => handleExport('pdf')}>
-              <Download className="w-4 h-4" />
-              Export as PDF
+              Export
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2.5" onClick={() => handleExport('json')}>
-              <Download className="w-4 h-4" />
-              Export as JSON
-            </DropdownMenuItem>
             <DropdownMenuItem className="gap-2.5" onClick={() => fileInputRef.current?.click()}>
               <Download className="w-4 h-4 rotate-180" />
               Import from JSON

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type ModalType = 'create-project' | null
+export type ModalType = 'create-project' | 'export-project' | null
 
 interface ModalState {
   isOpen: boolean

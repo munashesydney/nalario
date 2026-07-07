@@ -56,13 +56,14 @@ interface CanvasStore {
   activeTool: "select" | "image" | "text" | "shape";
   activeShapeKind: ShapeKind;
   customPathData: string;
-  activePanel: "text" | "shape" | null;
+  activePanel: "text" | "shape" | "background" | null;
   panelPosition: "left" | "right";
   activeSnapLines: SnapLine[];
   multiSelectedIds: string[];
   messages: AIMessage[];
   canvasWidth: number;
   canvasHeight: number;
+  canvasBackgroundColor: string;
 
   addElement: (type: ElementType, position?: { x: number; y: number }) => void;
   addImage: (
@@ -78,7 +79,7 @@ interface CanvasStore {
   setActiveTool: (tool: "select" | "image" | "text" | "shape") => void;
   setActiveShapeKind: (kind: ShapeKind) => void;
   setCustomPathData: (path: string) => void;
-  setActivePanel: (panel: "text" | "shape" | null) => void;
+  setActivePanel: (panel: "text" | "shape" | "background" | null) => void;
   setPanelPosition: (position: "left" | "right") => void;
   setActiveSnapLines: (lines: SnapLine[]) => void;
   reorderElement: (id: string, action: "up" | "down" | "front" | "back") => void;
@@ -88,6 +89,7 @@ interface CanvasStore {
   addMessage: (role: "user" | "assistant", content: string) => void;
   setElements: (elements: CanvasElement[]) => void;
   setCanvasDimensions: (width: number, height: number) => void;
+  setCanvasBackgroundColor: (color: string) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set, get) => ({
@@ -103,6 +105,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   messages: SEED_MESSAGES,
   canvasWidth: 1920,
   canvasHeight: 1080,
+  canvasBackgroundColor: "#ffffff",
 
   addElement: (type, position) => {
     const shapeKind = type === "shape" ? get().activeShapeKind : undefined;
@@ -156,6 +159,10 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   setCanvasDimensions: (canvasWidth, canvasHeight) => {
     set({ canvasWidth, canvasHeight });
+  },
+
+  setCanvasBackgroundColor: (canvasBackgroundColor) => {
+    set({ canvasBackgroundColor });
   },
 
   updateElement: (id, updates) => {

@@ -68,5 +68,21 @@
 
 /* Selection */
 ::selection {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(244, 114, 182, 0.2); /* pink-400 with opacity */
+}
+
+/* Pink scrollbars for editor panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #f9a8d4; /* pink-300 */
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #f472b6; /* pink-400 */
 }

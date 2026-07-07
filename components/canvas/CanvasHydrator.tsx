@@ -17,8 +17,14 @@ export function CanvasHydrator({ project }: CanvasHydratorProps) {
   // 1. Hydrate store on mount
   useEffect(() => {
     setCanvasDimensions(project.width || 1920, project.height || 1080);
-    if (project.canvas_state && project.canvas_state.elements) {
-      setElements(project.canvas_state.elements);
+    
+    if (project.canvas_state) {
+      if (project.canvas_state.elements) {
+        setElements(project.canvas_state.elements);
+      }
+      if (project.canvas_state.backgroundColor) {
+        useCanvasStore.getState().setCanvasBackgroundColor(project.canvas_state.backgroundColor);
+      }
     } else {
       setElements([]); // Initialize empty if no state
     }
@@ -38,11 +44,12 @@ export function CanvasHydrator({ project }: CanvasHydratorProps) {
       }
 
       saveTimeoutRef.current = setTimeout(async () => {
-        try {
-          await projectService.updateProjectState(project.id, {
-            elements: state.elements,
-          });
-          console.log("Canvas saved securely to database.");
+          try {
+            await projectService.updateProjectState(project.id, {
+              elements: state.elements,
+              backgroundColor: state.canvasBackgroundColor,
+            });
+            console.log("Canvas saved securely to database.");
         } catch (err) {
           console.error("Failed to save canvas state:", err);
         }

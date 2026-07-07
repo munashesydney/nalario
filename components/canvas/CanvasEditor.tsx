@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Canvas, TextEditorSheet, ShapeEditorSheet } from "@/components/canvas";
+import { Canvas, TextEditorSheet, ShapeEditorSheet, BackgroundEditorSheet } from "@/components/canvas";
 import { Toolbar } from "@/components/toolbar";
 import { AIChatPanel } from "@/components/chat";
 import { Navbar } from "@/components/layout";
@@ -37,6 +37,7 @@ export default function CanvasEditor({ projectName, workspaceId }: { projectName
             >
               <TextEditorSheet open={activePanel === "text"} />
               <ShapeEditorSheet open={activePanel === "shape"} />
+              <BackgroundEditorSheet open={activePanel === "background"} />
               <AIChatPanel open={aiPanelOpen && !activePanel} />
             </motion.div>
           )}

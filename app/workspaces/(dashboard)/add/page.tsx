@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Sparkles, Building, User, Mail, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "../../../lib/utils";
+import { cn } from "@/lib/utils";
 
 import { workspaceService } from "@/lib/services/workspace.service";
 

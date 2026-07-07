@@ -14,12 +14,23 @@ function downloadURI(uri: string, name: string) {
   document.body.removeChild(link);
 }
 
+export interface ExportOptions {
+  filename?: string;
+  transparent?: boolean;
+  backgroundColor?: string;
+}
+
 /**
  * Exports the given HTML element as a PNG image.
  */
-export async function exportAsPNG(element: HTMLElement, filename = "canvas.png") {
+export async function exportAsPNG(element: HTMLElement, options: ExportOptions = {}) {
+  const { filename = "canvas.png", transparent = false, backgroundColor = "#ffffff" } = options;
   try {
-    const dataUrl = await htmlToImage.toPng(element, { quality: 1, pixelRatio: 2 });
+    const dataUrl = await htmlToImage.toPng(element, { 
+      quality: 1, 
+      pixelRatio: 2,
+      style: transparent ? { backgroundColor: "transparent" } : { backgroundColor },
+    });
     downloadURI(dataUrl, filename);
   } catch (err) {
     console.error("Failed to export PNG:", err);
@@ -30,9 +41,13 @@ export async function exportAsPNG(element: HTMLElement, filename = "canvas.png")
 /**
  * Exports the given HTML element as an SVG image.
  */
-export async function exportAsSVG(element: HTMLElement, filename = "canvas.svg") {
+export async function exportAsSVG(element: HTMLElement, options: ExportOptions = {}) {
+  const { filename = "canvas.svg", transparent = false, backgroundColor = "#ffffff" } = options;
   try {
-    const dataUrl = await htmlToImage.toSvg(element, { pixelRatio: 2 });
+    const dataUrl = await htmlToImage.toSvg(element, { 
+      pixelRatio: 2,
+      style: transparent ? { backgroundColor: "transparent" } : { backgroundColor },
+    });
     downloadURI(dataUrl, filename);
   } catch (err) {
     console.error("Failed to export SVG:", err);
@@ -43,10 +58,15 @@ export async function exportAsSVG(element: HTMLElement, filename = "canvas.svg")
 /**
  * Exports the given HTML element as a PDF document.
  */
-export async function exportAsPDF(element: HTMLElement, filename = "canvas.pdf") {
+export async function exportAsPDF(element: HTMLElement, options: ExportOptions = {}) {
+  const { filename = "canvas.pdf", transparent = false, backgroundColor = "#ffffff" } = options;
   try {
     // We convert to PNG first, then embed in a PDF
-    const dataUrl = await htmlToImage.toPng(element, { quality: 1, pixelRatio: 2 });
+    const dataUrl = await htmlToImage.toPng(element, { 
+      quality: 1, 
+      pixelRatio: 2,
+      style: transparent ? { backgroundColor: "transparent" } : { backgroundColor },
+    });
     
     // Get original dimensions to scale the PDF properly
     const rect = element.getBoundingClientRect();

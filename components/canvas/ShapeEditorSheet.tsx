@@ -49,10 +49,10 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
       position={panelPosition}
       onClose={() => setActivePanel(null)}
     >
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 min-w-0">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 min-w-0 custom-scrollbar">
         {/* Shape Kind */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Shape Type
           </label>
           <select
@@ -62,7 +62,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
               const def = SHAPE_DEFINITIONS[newKind];
               updateStyle({ ...def.defaultStyle });
             }}
-            className="block w-full text-sm border border-zinc-200 rounded-none px-2.5 py-1.5 bg-white text-zinc-800 focus:outline-none focus:border-zinc-400"
+            className="block w-full text-sm font-bold border-2 border-zinc-900 rounded-none px-2.5 py-1.5 bg-white text-zinc-900 focus:outline-none focus:border-pink-500 transition-colors"
           >
             {SHAPE_KIND_LIST.map((def) => (
               <option key={def.kind} value={def.kind}>
@@ -74,7 +74,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
 
         {/* Fill Color */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Fill Color
           </label>
           <div className="flex items-center gap-2">
@@ -82,20 +82,20 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
               type="color"
               value={style.backgroundColor || "#3b82f6"}
               onChange={(e) => updateStyle({ backgroundColor: e.target.value })}
-              className="w-8 h-8 p-0.5 border border-zinc-200 cursor-pointer bg-white"
+              className="w-8 h-8 p-0 border-2 border-zinc-900 cursor-pointer bg-white rounded-none"
             />
             <input
               type="text"
               value={style.backgroundColor || "#3b82f6"}
               onChange={(e) => updateStyle({ backgroundColor: e.target.value })}
-              className="flex-1 text-sm border border-zinc-200 rounded-none px-2 py-1 bg-white text-zinc-800 font-mono focus:outline-none focus:border-zinc-400"
+              className="flex-1 text-sm font-bold border-2 border-zinc-900 rounded-none px-2 py-1 bg-white text-zinc-900 font-mono focus:outline-none focus:border-pink-500 transition-colors"
             />
           </div>
         </fieldset>
 
         {/* Border Width */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Border Width
           </label>
           <input
@@ -107,7 +107,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
             onChange={(e) =>
               updateStyle({ borderWidth: Number(e.target.value) })
             }
-            className="w-full h-1.5 accent-zinc-900"
+            className="w-full h-1.5 accent-pink-500"
           />
           <span className="text-xs text-zinc-500">
             {style.borderWidth || 0}px
@@ -116,7 +116,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
 
         {/* Border Color */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Border Color
           </label>
           <div className="flex items-center gap-2">
@@ -124,13 +124,13 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
               type="color"
               value={style.borderColor || "#000000"}
               onChange={(e) => updateStyle({ borderColor: e.target.value })}
-              className="w-8 h-8 p-0.5 border border-zinc-200 cursor-pointer bg-white"
+              className="w-8 h-8 p-0 border-2 border-zinc-900 cursor-pointer bg-white rounded-none"
             />
             <input
               type="text"
               value={style.borderColor || "#000000"}
               onChange={(e) => updateStyle({ borderColor: e.target.value })}
-              className="flex-1 text-sm border border-zinc-200 rounded-none px-2 py-1 bg-white text-zinc-800 font-mono focus:outline-none focus:border-zinc-400"
+              className="flex-1 text-sm font-bold border-2 border-zinc-900 rounded-none px-2 py-1 bg-white text-zinc-900 font-mono focus:outline-none focus:border-pink-500 transition-colors"
             />
           </div>
         </fieldset>
@@ -138,7 +138,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
         {/* Border Radius (only for rect/custom) */}
         {(kind === "rectangle" || kind === "custom") && (
           <fieldset>
-            <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
               Corner Radius
             </label>
             <input
@@ -150,7 +150,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
               onChange={(e) =>
                 updateStyle({ borderRadius: Number(e.target.value) })
               }
-              className="w-full h-1.5 accent-zinc-900"
+              className="w-full h-1.5 accent-pink-500"
             />
             <span className="text-xs text-zinc-500">
               {style.borderRadius ?? 8}%
@@ -161,7 +161,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
         {/* Custom SVG path */}
         {kind === "custom" && (
           <fieldset>
-            <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
               SVG Path Data
             </label>
             <textarea
@@ -174,7 +174,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
               }}
               placeholder="M10 80 Q 95 10 180 80 T 350 80"
               rows={4}
-              className="block w-full text-xs border border-zinc-200 px-2 py-1.5 bg-white text-zinc-800 focus:outline-none focus:border-zinc-400 resize-none font-mono"
+              className="block w-full text-xs font-bold border-2 border-zinc-900 rounded-none px-2 py-1.5 bg-white text-zinc-900 focus:outline-none focus:border-pink-500 transition-colors resize-none font-mono"
             />
             <span
               className={cn(
@@ -197,7 +197,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
 
         {/* Rotation */}
         <fieldset>
-          <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Rotation
           </label>
           <div className="flex items-center gap-2">
@@ -208,7 +208,7 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
               step={1}
               value={rotation}
               onChange={(e) => updateRotation(Number(e.target.value))}
-              className="flex-1 h-1.5 accent-zinc-900"
+              className="flex-1 h-1.5 accent-pink-500"
             />
             <span className="w-10 text-xs text-zinc-500 text-right tabular-nums">
               {rotation}°
@@ -217,12 +217,12 @@ export function ShapeEditorSheet({ open }: { open: boolean }) {
         </fieldset>
 
         {/* Preview */}
-        <div className="pt-2 border-t border-zinc-100">
-          <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-2">
+        <div className="pt-4 border-t-4 border-zinc-900">
+          <p className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">
             Preview
           </p>
           <div
-            className="mx-auto border border-zinc-100 bg-zinc-50 flex items-center justify-center"
+            className="mx-auto border-2 border-zinc-900 bg-white shadow-[4px_4px_0px_rgba(24,24,27,1)] flex items-center justify-center"
             style={{ width: 100, height: 100 }}
           >
             <div

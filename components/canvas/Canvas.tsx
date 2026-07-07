@@ -15,6 +15,7 @@ export function Canvas() {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState({ x: 0, y: 0 });
   const [selectionEnd, setSelectionEnd] = useState({ x: 0, y: 0 });
+  const [isHoveringBg, setIsHoveringBg] = useState(false);
   
   const {
     elements,
@@ -30,6 +31,7 @@ export function Canvas() {
     multiSelectedIds,
     canvasWidth,
     canvasHeight,
+    canvasBackgroundColor,
   } = useCanvasStore();
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
@@ -111,7 +113,11 @@ export function Canvas() {
         }
       } else {
         // Just a click on the canvas background
-        deselectAll();
+        if (activeTool === "select") {
+          selectElement("canvas-background");
+        } else {
+          deselectAll();
+        }
       }
     };
 
@@ -130,7 +136,7 @@ export function Canvas() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === "INPUT") return;
 
-      if ((e.key === "Delete" || e.key === "Backspace") && selectedId) {
+      if ((e.key === "Delete" || e.key === "Backspace") && selectedId && selectedId !== "canvas-background") {
         deleteElement(selectedId);
       }
       if (e.key === "Escape") {
@@ -193,8 +199,20 @@ export function Canvas() {
             style={{
               width: canvasWidth,
               height: canvasHeight,
+              backgroundColor: canvasBackgroundColor || "#ffffff",
             }}
+            onMouseEnter={() => setIsHoveringBg(true)}
+            onMouseLeave={() => setIsHoveringBg(false)}
           >
+            {/* Background Selection / Hover Border */}
+            {(selectedId === "canvas-background" || isHoveringBg) && (
+              <div 
+                className={`absolute inset-0 pointer-events-none transition-colors ${
+                  selectedId === "canvas-background" ? "border-4 border-pink-500" : "border-4 border-pink-300"
+                }`} 
+              />
+            )}
+
             <div
               ref={canvasRef}
               data-canvas

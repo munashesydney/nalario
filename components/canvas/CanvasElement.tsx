@@ -44,6 +44,7 @@ export function DraggableElement({
   onUpdate,
   canvasBounds,
 }: DraggableElementProps) {
+  const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(element.content || "");
   const elementRef = useRef<HTMLDivElement>(null);
@@ -298,25 +299,32 @@ export function DraggableElement({
       }}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Hover border (only if not selected) */}
+      {isHovered && !isSelected && !isMultiSelected && (
+        <div className="absolute -inset-0.5 border-2 border-pink-300 pointer-events-none" />
+      )}
+
       {/* Selection border */}
       {isSelected && (
         <>
-          <div className="absolute -inset-0.5 border-2 border-zinc-900 pointer-events-none" />
+          <div className="absolute -inset-0.5 border-2 border-pink-500 pointer-events-none" />
 
           {/* Rotation handle */}
           <div
             onMouseDown={handleRotateStart}
-            className="absolute -bottom-9 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white border-2 border-zinc-900 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+            className="absolute -bottom-9 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white border-2 border-pink-500 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
           >
-            <RotateCw className="w-2.5 h-2.5 text-zinc-600" />
+            <RotateCw className="w-2.5 h-2.5 text-pink-500" />
           </div>
 
           {CORNERS.map(({ pos, handle }) => (
             <div
               key={handle}
               onMouseDown={(e) => handleResizeStart(e, handle)}
-              className={`absolute w-2 h-2 bg-white border-2 border-zinc-900 ${pos}`}
+              className={`absolute w-2 h-2 bg-white border-2 border-pink-500 ${pos}`}
               style={{
                 cursor:
                   handle === "tl" || handle === "br"
@@ -330,7 +338,7 @@ export function DraggableElement({
             <div
               key={handle}
               onMouseDown={(e) => handleResizeStart(e, handle)}
-              className={`absolute bg-white border border-zinc-900 rounded-full ${className} ${pos}`}
+              className={`absolute bg-white border-2 border-pink-500 rounded-full ${className} ${pos}`}
               style={{
                 cursor: "ew-resize",
               }}
