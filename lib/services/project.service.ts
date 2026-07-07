@@ -26,12 +26,18 @@ export const projectService = {
     return data as Project
   },
 
-  async createProject(workspaceId: string, name: string): Promise<Project> {
+  async createProject(workspaceId: string, name: string, width: number = 1920, height: number = 1080): Promise<Project> {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('projects')
       .insert([
-        { workspace_id: workspaceId, name }
+        { 
+          workspace_id: workspaceId, 
+          name,
+          width,
+          height,
+          canvas_state: { elements: [] }
+        }
       ])
       .select()
       .single()
@@ -51,6 +57,19 @@ export const projectService = {
 
     if (error) throw error
     return data as Project
+  },
+
+  async updateProjectState(id: string, canvasState: any): Promise<void> {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('projects')
+      .update({ 
+        canvas_state: canvasState,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+
+    if (error) throw error
   },
 
   async deleteProject(id: string): Promise<void> {

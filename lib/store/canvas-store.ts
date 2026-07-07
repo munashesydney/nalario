@@ -61,6 +61,8 @@ interface CanvasStore {
   activeSnapLines: SnapLine[];
   multiSelectedIds: string[];
   messages: AIMessage[];
+  canvasWidth: number;
+  canvasHeight: number;
 
   addElement: (type: ElementType, position?: { x: number; y: number }) => void;
   addImage: (
@@ -85,6 +87,7 @@ interface CanvasStore {
   ungroupElement: (groupId: string) => void;
   addMessage: (role: "user" | "assistant", content: string) => void;
   setElements: (elements: CanvasElement[]) => void;
+  setCanvasDimensions: (width: number, height: number) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set, get) => ({
@@ -98,6 +101,8 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   activeSnapLines: [],
   multiSelectedIds: [],
   messages: SEED_MESSAGES,
+  canvasWidth: 1920,
+  canvasHeight: 1080,
 
   addElement: (type, position) => {
     const shapeKind = type === "shape" ? get().activeShapeKind : undefined;
@@ -147,6 +152,10 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   setElements: (elements) => {
     set({ elements, selectedId: null, multiSelectedIds: [], activePanel: null });
+  },
+
+  setCanvasDimensions: (canvasWidth, canvasHeight) => {
+    set({ canvasWidth, canvasHeight });
   },
 
   updateElement: (id, updates) => {

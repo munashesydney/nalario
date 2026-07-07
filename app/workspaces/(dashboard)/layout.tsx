@@ -3,9 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { Layers, Search, Bell, Menu } from "lucide-react";
-import { cn } from "../../lib/utils";
+import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import GlobalSheet from "../../components/ui/GlobalSheet";
+import GlobalSheet from "@/components/ui/GlobalSheet";
+import GlobalModal from "@/components/ui/GlobalModal";
 
 export default function WorkspacesLayout({
   children,
@@ -13,12 +14,7 @@ export default function WorkspacesLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-
-  // Bypass layout for the canvas editor
-  if (pathname.includes('/project/')) {
-    return <>{children}</>;
-  }
-
+  
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col font-sans">
       {/* Top Navbar */}
@@ -34,8 +30,8 @@ export default function WorkspacesLayout({
           </Link>
 
           <nav className="hidden md:flex items-center gap-4 ml-4">
-            <Link 
-              href="/workspaces" 
+            <Link
+              href="/workspaces"
               className={cn(
                 "py-4 text-sm font-medium border-b-2 transition-colors",
                 pathname === "/workspaces" ? "border-zinc-900 text-zinc-900" : "border-transparent text-zinc-500 hover:text-zinc-900"
@@ -43,14 +39,14 @@ export default function WorkspacesLayout({
             >
               Workspaces
             </Link>
-            <Link 
-              href="#" 
+            <Link
+              href="#"
               className="py-4 text-sm font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 transition-colors"
             >
               Recent
             </Link>
-            <Link 
-              href="#" 
+            <Link
+              href="#"
               className="py-4 text-sm font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 transition-colors"
             >
               Trash
@@ -61,9 +57,9 @@ export default function WorkspacesLayout({
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center relative">
             <Search className="w-4 h-4 text-zinc-400 absolute left-3" />
-            <input 
-              type="text" 
-              placeholder="Search..." 
+            <input
+              type="text"
+              placeholder="Search..."
               className="w-64 h-9 pl-9 pr-3 bg-zinc-100 border-none rounded-none text-sm outline-none focus:ring-1 focus:ring-zinc-900 transition-all"
             />
           </div>
@@ -83,6 +79,7 @@ export default function WorkspacesLayout({
       </main>
 
       <GlobalSheet />
+      <GlobalModal />
     </div>
   );
 }

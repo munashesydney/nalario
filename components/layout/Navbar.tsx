@@ -25,8 +25,7 @@ import { cn } from "../../lib/utils";
 import { useCanvasStore } from "../../lib/store/canvas-store";
 import { exportAsPNG, exportAsSVG, exportAsPDF, exportAsJSON, importFromJSON } from "../../lib/services/export-service";
 
-export function Navbar({ chatPanelOpen = false }: { chatPanelOpen?: boolean }) {
-  const [projectName] = useState("Untitled Project");
+export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project" }: { chatPanelOpen?: boolean, projectName?: string }) {
   const { elements, setElements, deselectAll } = useCanvasStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 

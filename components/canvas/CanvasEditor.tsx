@@ -10,13 +10,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const PANEL_WIDTH = 320; // px — matches w-80
 
-export default function Home() {
+export default function CanvasEditor({ projectName }: { projectName?: string }) {
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
   const { activePanel, panelPosition } = useCanvasStore();
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-zinc-100">
-      <Navbar chatPanelOpen={aiPanelOpen} />
+      <Navbar chatPanelOpen={aiPanelOpen} projectName={projectName} />
 
       {/* Main layout wrapper */}
       <motion.div

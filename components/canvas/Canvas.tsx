@@ -8,9 +8,6 @@ import { FloatingToolbar } from "./FloatingToolbar";
 import { DesignSheet } from "../layout/DesignSheet";
 import { HelpCircle } from "lucide-react";
 
-const CANVAS_WIDTH = 500;
-const CANVAS_HEIGHT = 500;
-
 export function Canvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -31,6 +28,8 @@ export function Canvas() {
     activeSnapLines,
     setMultiSelectedIds,
     multiSelectedIds,
+    canvasWidth,
+    canvasHeight,
   } = useCanvasStore();
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
@@ -41,7 +40,7 @@ export function Canvas() {
         if (!canvas) return;
 
         const rect = canvas.getBoundingClientRect();
-        const s = CANVAS_WIDTH / rect.width;
+        const s = canvasWidth / rect.width;
         const x = (e.clientX - rect.left) * s;
         const y = (e.clientY - rect.top) * s;
 
@@ -54,7 +53,7 @@ export function Canvas() {
       if (!canvas) return;
       
       const rect = canvas.getBoundingClientRect();
-      const s = CANVAS_WIDTH / rect.width;
+      const s = canvasWidth / rect.width;
       const x = (e.clientX - rect.left) * s;
       const y = (e.clientY - rect.top) * s;
       
@@ -69,13 +68,13 @@ export function Canvas() {
       if (!isSelecting || !canvasRef.current) return;
       
       const rect = canvasRef.current.getBoundingClientRect();
-      const s = CANVAS_WIDTH / rect.width;
+      const s = canvasWidth / rect.width;
       const x = (e.clientX - rect.left) * s;
       const y = (e.clientY - rect.top) * s;
       
       setSelectionEnd({
-        x: Math.max(0, Math.min(x, CANVAS_WIDTH)),
-        y: Math.max(0, Math.min(y, CANVAS_HEIGHT)),
+        x: Math.max(0, Math.min(x, canvasWidth)),
+        y: Math.max(0, Math.min(y, canvasHeight)),
       });
     };
 
@@ -164,14 +163,14 @@ export function Canvas() {
       const availableWidth = Math.max(1, width - padding);
       const availableHeight = Math.max(1, height - padding);
       
-      const scaleX = availableWidth / CANVAS_WIDTH;
-      const scaleY = availableHeight / CANVAS_HEIGHT;
+      const scaleX = availableWidth / canvasWidth;
+      const scaleY = availableHeight / canvasHeight;
       
       setScale(Math.max(0.1, Math.min(1, scaleX, scaleY)));
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [canvasWidth, canvasHeight]);
 
   const handleElementUpdate =
     (id: string) => (updates: Partial<CanvasElement>) => {
@@ -192,8 +191,8 @@ export function Canvas() {
           <DesignSheet
             className="relative"
             style={{
-              width: CANVAS_WIDTH,
-              height: CANVAS_HEIGHT,
+              width: canvasWidth,
+              height: canvasHeight,
             }}
           >
             <div
@@ -210,7 +209,7 @@ export function Canvas() {
                   isMultiSelected={multiSelectedIds.includes(element.id)}
                   onSelect={() => selectElement(element.id)}
                   onUpdate={handleElementUpdate(element.id)}
-                  canvasBounds={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
+                  canvasBounds={{ width: canvasWidth, height: canvasHeight }}
                 />
               ))}
 
