@@ -13,6 +13,11 @@ export default function WorkspacesLayout({
 }) {
   const pathname = usePathname();
 
+  // Bypass layout for the canvas editor
+  if (pathname.includes('/project/')) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col font-sans">
       {/* Top Navbar */}

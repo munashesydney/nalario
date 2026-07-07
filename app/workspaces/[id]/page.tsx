@@ -56,8 +56,8 @@ export default function WorkspaceHomePage() {
           </div>
           
           <Link 
-            href="/"
-            className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-none font-medium transition-colors"
+            href={`/workspaces/${params.id}/project/p1`}
+            className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-none font-medium border-2 border-transparent hover:border-zinc-900 hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] transition-all"
           >
             <Plus className="w-5 h-5" />
             New Project
@@ -87,7 +87,7 @@ export default function WorkspaceHomePage() {
           {/* Project Cards */}
           {MOCK_PROJECTS.map((project) => (
             <Link
-              href="/"
+              href={`/workspaces/${params.id}/project/${project.id}`}
               key={project.id}
               className="group bg-white rounded-none border-2 border-zinc-200 overflow-hidden hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] hover:border-zinc-900 transition-all duration-200 flex flex-col h-[240px]"
             >

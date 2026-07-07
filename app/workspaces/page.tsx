@@ -21,7 +21,7 @@ export default function WorkspacesPage() {
         </div>
         <Link 
           href="/workspaces/add"
-          className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-none font-medium transition-colors"
+          className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-none font-medium border-2 border-transparent hover:border-zinc-900 hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] transition-all"
         >
           <Plus className="w-4 h-4" />
           Create Workspace
