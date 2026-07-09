@@ -38,7 +38,7 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
       const importedElements = await importFromJSON(file);
       setElements(importedElements);
     } catch (err) {
-      alert("Failed to import JSON file. Please ensure it's a valid canvas project.");
+      alert("Failed to import JSON file. Please ensure it's a valid Nalario project.");
     }
     // Clear input so the same file can be imported again if needed
     e.target.value = '';
@@ -46,7 +46,7 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white">
-      {/* Bottom border — stops before the chat panel when it\'s open */}
+      {/* Bottom border — stops before the chat panel when it's open */}
       <div
         className={cn(
           "absolute bottom-0 left-0 h-px bg-zinc-200",
@@ -72,8 +72,8 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
             <div className="w-8 h-8 bg-zinc-900 flex items-center justify-center rounded-none">
               <Layers className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-zinc-900 text-lg tracking-tight group-hover:text-zinc-700 transition-colors">
-              Canvas
+            <span className="font-bold text-zinc-900 text-lg tracking-tight group-hover:text-zinc-700 transition-colors uppercase">
+              Nalario
             </span>
           </Link>
 
