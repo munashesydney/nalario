@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowUp } from "lucide-react";
 import { useCanvasStore } from "../../lib/store/canvas-store";
 import { aiJobService } from "../../lib/services/ai-job.service";
+import { createAiJobAction } from "../../app/actions/ai-jobs";
 import { useParams } from "next/navigation";
 import { SidePanel } from "../layout/SidePanel";
 import { cn } from "../../lib/utils";
@@ -47,7 +48,7 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
     setIsTyping(true);
 
     try {
-      const jobId = await aiJobService.createJob(userMessage, projectId);
+      const jobId = await createAiJobAction(userMessage, projectId);
       
       const unsubscribe = aiJobService.subscribeToJob(jobId, (job) => {
         if (job.status === "completed") {
@@ -64,6 +65,22 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
           unsubscribe();
         }
       });
+      
+      // The AI might finish so fast that the websocket misses the 'completed' update.
+      // We manually check the state right after subscribing to catch this race condition.
+      const initialJob = await aiJobService.getJob(jobId);
+      if (initialJob && initialJob.status === "completed") {
+        addMessage("assistant", initialJob.response_text || "");
+        setIsTyping(false);
+        if (initialJob.response_elements) {
+          addElements(initialJob.response_elements);
+        }
+        unsubscribe();
+      } else if (initialJob && initialJob.status === "failed") {
+        addMessage("assistant", "Sorry, an error occurred: " + (initialJob.error_message || "Unknown error"));
+        setIsTyping(false);
+        unsubscribe();
+      }
     } catch (error: any) {
       console.error(error);
       addMessage("assistant", "Failed to submit job: " + (error.message || "Unknown error"));

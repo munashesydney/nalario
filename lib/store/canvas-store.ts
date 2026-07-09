@@ -14,41 +14,7 @@ export interface SnapLine {
   value: number;
 }
 
-const SEED_MESSAGES: AIMessage[] = [
-  {
-    id: "seed-1",
-    role: "assistant",
-    content:
-      "I'm your design assistant. Describe what you want to build and I'll add it to the canvas.",
-    timestamp: new Date(),
-  },
-  {
-    id: "seed-2",
-    role: "user",
-    content: "Add a title saying Welcome to my design",
-    timestamp: new Date(),
-  },
-  {
-    id: "seed-3",
-    role: "assistant",
-    content:
-      "Done — I've placed a heading on your canvas. You can drag it wherever you like.",
-    timestamp: new Date(),
-  },
-  {
-    id: "seed-4",
-    role: "user",
-    content: "Add a blue rectangle below it",
-    timestamp: new Date(),
-  },
-  {
-    id: "seed-5",
-    role: "assistant",
-    content:
-      "Added a blue shape. Try double-clicking a text element to edit its content.",
-    timestamp: new Date(),
-  },
-];
+const SEED_MESSAGES: AIMessage[] = [];
 
 interface CanvasStore {
   elements: CanvasElement[];

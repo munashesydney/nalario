@@ -4,31 +4,20 @@ import { createClient } from "../supabase/client";
 // Service to interact with the Supabase ai_jobs table
 export const aiJobService = {
   /**
-   * Creates a new AI generation job in the database.
-   * The Express worker will pick this up automatically.
+   * Fetches the current state of a job. Useful to check if a job finished
+   * before the websocket could connect.
    */
-  async createJob(prompt: string, projectId?: string): Promise<string> {
+  async getJob(jobId: string) {
     const supabase = createClient();
-    
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("User must be authenticated to run AI jobs");
-
     const { data, error } = await supabase
       .from("ai_jobs")
-      .insert({
-        user_id: user.id,
-        project_id: projectId || null,
-        prompt: prompt,
-        status: "pending",
-      })
-      .select("id")
+      .select("*")
+      .eq("id", jobId)
       .single();
-
     if (error) throw error;
-    
-    return data.id;
+    return data;
   },
+
 
   /**
    * Subscribes to real-time updates for a specific job ID.
