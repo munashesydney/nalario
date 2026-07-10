@@ -5,7 +5,8 @@ import { createClient } from "../../lib/supabase/server";
 export async function createAiJobAction(
   prompt: string,
   projectId?: string,
-  chatId?: string
+  chatId?: string,
+  canvasState?: any
 ) {
   const supabase = createClient();
 
@@ -44,7 +45,7 @@ export async function createAiJobAction(
         "Content-Type": "application/json",
         "Authorization": `Bearer ${workerSecret}`
       },
-      body: JSON.stringify({ jobId: data.id, prompt }),
+      body: JSON.stringify({ jobId: data.id, prompt, canvasState }),
     });
 
     if (!response.ok) {

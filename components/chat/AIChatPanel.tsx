@@ -23,7 +23,8 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
 
   const { 
     messages, addMessage, addElements, panelPosition,
-    chats, activeChatId, setChats, setActiveChatId, setMessages 
+    chats, activeChatId, setChats, setActiveChatId, setMessages,
+    canvasWidth, canvasHeight, elements
   } = useCanvasStore();
   
   const params = useParams();
@@ -116,7 +117,22 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
     setIsTyping(true);
 
     try {
-      const jobId = await createAiJobAction(userMessage, projectId, activeChatId || undefined);
+      // Simplify elements for the AI to reduce token payload
+      const simplifiedElements = elements.map(el => ({
+        id: el.id,
+        type: el.type,
+        position: el.position,
+        dimensions: el.dimensions,
+        content: (el as any).content,
+        style: el.style
+      }));
+
+      const canvasState = {
+        dimensions: { width: canvasWidth, height: canvasHeight },
+        elements: simplifiedElements
+      };
+      
+      const jobId = await createAiJobAction(userMessage, projectId, activeChatId || undefined, canvasState);
       
       const unsubscribe = aiJobService.subscribeToJob(jobId, (job) => {
         if (job.status === "completed") {
