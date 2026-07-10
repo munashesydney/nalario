@@ -22,6 +22,7 @@ interface DraggableElementProps {
   onSelect: () => void;
   onUpdate: (updates: Partial<CanvasElementType>) => void;
   canvasBounds: { width: number; height: number };
+  isStreaming?: boolean;
 }
 
 const CORNERS: { pos: string; handle: ResizeHandle }[] = [
@@ -43,6 +44,7 @@ export function DraggableElement({
   onSelect,
   onUpdate,
   canvasBounds,
+  isStreaming = false,
 }: DraggableElementProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -165,9 +167,12 @@ export function DraggableElement({
               }}
               readOnly={!isEditing}
               onHeightChange={(height) => {
-                if (height !== element.dimensions.height) {
+                if (element.dimensions && height !== element.dimensions.height) {
                   onUpdate({
-                    dimensions: { ...element.dimensions, height },
+                    dimensions: {
+                      ...element.dimensions,
+                      height,
+                    },
                   });
                 }
               }}
@@ -283,7 +288,9 @@ export function DraggableElement({
   return (
     <div
       ref={elementRef}
-      className="absolute cursor-move group"
+      className={`absolute cursor-move group ${
+        isStreaming ? "opacity-70 pointer-events-none animate-pulse" : ""
+      }`}
       style={{
         left: element.position.x,
         top: element.position.y,
@@ -291,12 +298,12 @@ export function DraggableElement({
         transformOrigin: "center center",
         ...(isText
           ? {
-              width: element.dimensions.width,
-              minHeight: element.dimensions.height,
+              width: element.dimensions?.width ?? 100,
+              minHeight: element.dimensions?.height ?? 20,
             }
           : {
-              width: element.dimensions.width,
-              height: element.dimensions.height,
+              width: element.dimensions?.width ?? 100,
+              height: element.dimensions?.height ?? 100,
             }),
       }}
       onMouseDown={handleMouseDown}

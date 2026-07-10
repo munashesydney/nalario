@@ -19,6 +19,7 @@ export function Canvas() {
   
   const {
     elements,
+    streamingElements,
     selectedId,
     activeTool,
     selectElement,
@@ -219,17 +220,21 @@ export function Canvas() {
               onMouseDown={handleCanvasMouseDown}
               className="absolute inset-0"
             >
-              {elements.map((element) => (
-                <DraggableElement
-                  key={element.id}
-                  element={element}
-                  isSelected={selectedId === element.id}
-                  isMultiSelected={multiSelectedIds.includes(element.id)}
-                  onSelect={() => selectElement(element.id)}
-                  onUpdate={handleElementUpdate(element.id)}
-                  canvasBounds={{ width: canvasWidth, height: canvasHeight }}
-                />
-              ))}
+              {[...elements, ...streamingElements].map((element) => {
+                const isStreaming = streamingElements.some((s) => s.id === element.id);
+                return (
+                  <DraggableElement
+                    key={element.id}
+                    element={element}
+                    isSelected={selectedId === element.id}
+                    isMultiSelected={multiSelectedIds.includes(element.id)}
+                    onSelect={() => selectElement(element.id)}
+                    onUpdate={handleElementUpdate(element.id)}
+                    canvasBounds={{ width: canvasWidth, height: canvasHeight }}
+                    isStreaming={isStreaming}
+                  />
+                );
+              })}
 
               {/* Render Snap Guides */}
               {activeSnapLines.map((line, idx) => (

@@ -19,6 +19,7 @@ const SEED_MESSAGES: AIMessage[] = [];
 
 interface CanvasStore {
   elements: CanvasElement[];
+  streamingElements: CanvasElement[];
   selectedId: string | null;
   activeTool: "select" | "image" | "text" | "shape";
   activeShapeKind: ShapeKind;
@@ -61,12 +62,15 @@ interface CanvasStore {
   setActiveChatId: (chatId: string | null) => void;
   setChats: (chats: AIChat[]) => void;
   setElements: (elements: CanvasElement[]) => void;
+  setStreamingElements: (elements: CanvasElement[]) => void;
+  clearStreamingElements: () => void;
   setCanvasDimensions: (width: number, height: number) => void;
   setCanvasBackgroundColor: (color: string) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set, get) => ({
   elements: [],
+  streamingElements: [],
   selectedId: null,
   activeTool: "select",
   activeShapeKind: "rectangle",
@@ -130,6 +134,14 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   setElements: (elements) => {
     set({ elements, selectedId: null, multiSelectedIds: [], activePanel: null });
+  },
+
+  setStreamingElements: (streamingElements) => {
+    set({ streamingElements });
+  },
+
+  clearStreamingElements: () => {
+    set({ streamingElements: [] });
   },
 
   setCanvasDimensions: (canvasWidth, canvasHeight) => {

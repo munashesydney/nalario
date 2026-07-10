@@ -2,6 +2,8 @@ import { CanvasElement } from "../types/canvas";
 
 export type StreamCallbacks = {
   onTextDelta?: (delta: string) => void;
+  onReasoningDelta?: (delta: string) => void;
+  onElementDelta?: (elements: CanvasElement[]) => void;
   onElementAdded?: (elements: CanvasElement[]) => void;
   onDone?: (jobId: string) => void;
   onError?: (message: string) => void;
@@ -55,6 +57,33 @@ class StreamService {
           }
         } catch (err) {
           console.error("[StreamService] Error parsing element-added:", err);
+        }
+      }
+    });
+
+    eventSource.addEventListener("reasoning-delta", (e: MessageEvent) => {
+      if (callbacks.onReasoningDelta) {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload.delta) {
+            callbacks.onReasoningDelta(payload.delta);
+          }
+        } catch (err) {
+          console.error("[StreamService] Error parsing reasoning-delta:", err);
+        }
+      }
+    });
+
+    eventSource.addEventListener("tool-element-delta", (e: MessageEvent) => {
+      if (callbacks.onElementDelta) {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload.elements) {
+            console.log(`[StreamService] Received tool-element-delta with ${payload.elements.length} elements`);
+            callbacks.onElementDelta(payload.elements);
+          }
+        } catch (err) {
+          console.error("[StreamService] Error parsing tool-element-delta:", err);
         }
       }
     });

@@ -26,7 +26,8 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
   const { 
     messages, addMessage, updateMessage, addElements, panelPosition,
     chats, activeChatId, setChats, setActiveChatId, setMessages,
-    canvasWidth, canvasHeight, elements
+    canvasWidth, canvasHeight, elements,
+    setStreamingElements, clearStreamingElements
   } = useCanvasStore();
   
   const params = useParams();
@@ -141,21 +142,32 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       
-      if (token) {
-        // Create an empty assistant message to stream into
-        const assistantMsgId = addMessage("assistant", "");
-        let currentText = "";
+        if (token) {
+          // Create an empty assistant message to stream into
+          const assistantMsgId = addMessage("assistant", "");
+          let currentText = "";
+          let currentReasoning = "";
 
-        streamService.connect(jobId, token, {
-          onTextDelta: (delta) => {
-            currentText += delta;
-            updateMessage(assistantMsgId, { content: currentText });
+          streamService.connect(jobId, token, {
+            onTextDelta: (delta) => {
+              currentText += delta;
+              updateMessage(assistantMsgId, { content: currentText });
+            },
+            onReasoningDelta: (delta) => {
+              currentReasoning += delta;
+              updateMessage(assistantMsgId, { reasoning: currentReasoning });
+            },
+          onElementDelta: (partialElements) => {
+            const streaming = partialElements.map((el, i) => ({ ...el, id: `stream-${i}` }));
+            setStreamingElements(streaming);
           },
           onElementAdded: (newElements) => {
             addElements(newElements);
+            clearStreamingElements();
           },
           onDone: () => {
             setIsTyping(false);
+            clearStreamingElements();
           },
           onError: (msg) => {
             console.error("Stream error:", msg);
@@ -240,13 +252,29 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
           >
             <div
               className={cn(
-                "max-w-[88%] px-3 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words",
+                "max-w-[88%] px-3 py-2.5 text-sm leading-relaxed break-words",
                 msg.role === "user"
                   ? "bg-zinc-900 text-white shadow-[2px_2px_0px_rgba(0,0,0,0.2)] border-2 border-zinc-900"
                   : "bg-white text-zinc-900 border-2 border-zinc-900 shadow-[2px_2px_0px_rgba(24,24,27,1)]",
               )}
             >
-              {msg.content}
+              {msg.reasoning && (
+                <details 
+                  className="mb-2 group [&_summary::-webkit-details-marker]:hidden"
+                  open={isTyping && msg.id === messages[messages.length - 1].id ? true : undefined}
+                >
+                  <summary className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-zinc-400 select-none">
+                    <span className="transition-transform group-open:rotate-90">
+                      ▶
+                    </span>
+                    Thinking Process
+                  </summary>
+                  <div className="mt-2 pl-3 ml-[3px] border-l-2 border-zinc-200 text-zinc-500 italic text-xs whitespace-pre-wrap">
+                    {msg.reasoning}
+                  </div>
+                </details>
+              )}
+              <div className="whitespace-pre-wrap">{msg.content}</div>
             </div>
           </div>
         ))}
