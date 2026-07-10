@@ -33,22 +33,25 @@ export function ProjectPreview({
               className="w-full h-full relative"
               style={{ backgroundColor }}
             >
-              {elements.map((element) => (
-                <div
-                  key={element.id}
-                  className="absolute pointer-events-none"
-                  style={{
-                    left: element.position.x,
-                    top: element.position.y,
-                    width: element.dimensions.width,
-                    height: element.dimensions.height,
-                    transform: `rotate(${element.rotation ?? 0}deg)`,
-                    transformOrigin: "center center",
-                  }}
-                >
-                  <ElementRenderer element={element} />
-                </div>
-              ))}
+              {elements.map((element) => {
+                if (!element.position || !element.dimensions) return null;
+                return (
+                  <div
+                    key={element.id}
+                    className="absolute pointer-events-none"
+                    style={{
+                      left: element.position.x,
+                      top: element.position.y,
+                      width: element.dimensions.width,
+                      height: element.dimensions.height,
+                      transform: `rotate(${element.rotation ?? 0}deg)`,
+                      transformOrigin: "center center",
+                    }}
+                  >
+                    <ElementRenderer element={element} />
+                  </div>
+                );
+              })}
             </div>
           </foreignObject>
         </svg>

@@ -278,6 +278,8 @@ export function DraggableElement({
     }
   };
 
+  if (!element.position) return null;
+
   return (
     <div
       ref={elementRef}

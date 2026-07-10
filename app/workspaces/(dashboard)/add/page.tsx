@@ -241,7 +241,7 @@ export default function AddWorkspacePage() {
                 <div className="w-20 h-20 bg-zinc-900 rounded-none flex items-center justify-center mb-6">
                   <Check className="w-10 h-10 text-white" />
                 </div>
-                <h1 className="text-3xl font-bold text-zinc-900 mb-3">You're all set!</h1>
+                <h1 className="text-3xl font-bold text-zinc-900 mb-3">You&apos;re all set!</h1>
                 <p className="text-zinc-500 max-w-sm mb-8">
                   <strong>{workspaceName}</strong> has been created successfully. Time to start designing.
                 </p>

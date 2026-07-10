@@ -119,7 +119,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-8 text-center">
-            <span className="text-zinc-500 font-medium">Don't have an account? </span>
+            <span className="text-zinc-500 font-medium">Don&apos;t have an account? </span>
             <Link href="/signup" className="font-bold text-zinc-900 hover:underline underline-offset-4 decoration-2">
               Sign up
             </Link>

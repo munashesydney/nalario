@@ -2,7 +2,11 @@
 
 import { createClient } from "../../lib/supabase/server";
 
-export async function createAiJobAction(prompt: string, projectId?: string) {
+export async function createAiJobAction(
+  prompt: string,
+  projectId?: string,
+  chatId?: string
+) {
   const supabase = createClient();
 
   // Get current user on the server
@@ -15,6 +19,7 @@ export async function createAiJobAction(prompt: string, projectId?: string) {
     .insert({
       user_id: user.id,
       project_id: projectId || null,
+      chat_id: chatId || null,
       prompt: prompt,
       status: "pending",
     })

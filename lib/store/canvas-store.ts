@@ -8,6 +8,7 @@ import {
   ShapeKind,
 } from "../types/canvas";
 import { createElement, generateId } from "../services/canvas-service";
+import { AIChat } from "../models/ai-chat.model";
 
 export interface SnapLine {
   axis: "x" | "y";
@@ -27,6 +28,8 @@ interface CanvasStore {
   activeSnapLines: SnapLine[];
   multiSelectedIds: string[];
   messages: AIMessage[];
+  activeChatId: string | null;
+  chats: AIChat[];
   canvasWidth: number;
   canvasHeight: number;
   canvasBackgroundColor: string;
@@ -53,6 +56,9 @@ interface CanvasStore {
   groupElements: () => void;
   ungroupElement: (groupId: string) => void;
   addMessage: (role: "user" | "assistant", content: string) => void;
+  setMessages: (messages: AIMessage[]) => void;
+  setActiveChatId: (chatId: string | null) => void;
+  setChats: (chats: AIChat[]) => void;
   setElements: (elements: CanvasElement[]) => void;
   setCanvasDimensions: (width: number, height: number) => void;
   setCanvasBackgroundColor: (color: string) => void;
@@ -69,6 +75,8 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   activeSnapLines: [],
   multiSelectedIds: [],
   messages: SEED_MESSAGES,
+  activeChatId: null,
+  chats: [],
   canvasWidth: 1920,
   canvasHeight: 1080,
   canvasBackgroundColor: "#ffffff",
@@ -306,5 +314,17 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     set((state) => ({
       messages: [...state.messages, message],
     }));
+  },
+  
+  setMessages: (messages) => {
+    set({ messages });
+  },
+  
+  setActiveChatId: (chatId) => {
+    set({ activeChatId: chatId });
+  },
+  
+  setChats: (chats) => {
+    set({ chats });
   },
 }));

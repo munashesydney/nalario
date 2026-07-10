@@ -18,6 +18,21 @@ export const aiJobService = {
     return data;
   },
 
+  /**
+   * Fetches all jobs (messages) for a given chat, ordered chronologically.
+   */
+  async getJobsByChat(chatId: string) {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("ai_jobs")
+      .select("*")
+      .eq("chat_id", chatId)
+      .order("created_at", { ascending: true });
+      
+    if (error) throw error;
+    return data || [];
+  },
+
 
   /**
    * Subscribes to real-time updates for a specific job ID.
