@@ -19,7 +19,7 @@ interface UploadResult {
  * Upload an image file to Cloudflare R2 via the internal API route,
  * and return the accessible URL + object key.
  */
-async function uploadToR2(file: File): Promise<UploadResult> {
+export async function uploadToR2(file: File): Promise<UploadResult> {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -60,20 +60,8 @@ export async function openImagePicker(): Promise<void> {
       // 2. Measure natural dimensions to preserve aspect ratio
       const img = new Image();
       img.onload = () => {
-        const maxDim = 250;
-        let w = img.naturalWidth;
-        let h = img.naturalHeight;
-
-        // Scale down if larger than maxDim on the longest side
-        if (w > maxDim || h > maxDim) {
-          const ratio = maxDim / Math.max(w, h);
-          w = Math.round(w * ratio);
-          h = Math.round(h * ratio);
-        }
-
-        useCanvasStore
-          .getState()
-          .addImage(url, { x: 150, y: 100 }, { width: w, height: h }, objectKey);
+        const dims = getScaledDimensions(img.naturalWidth, img.naturalHeight);
+        placeImage(url, objectKey, dims);
       };
       img.src = url;
     } catch (err) {
@@ -88,6 +76,61 @@ export async function openImagePicker(): Promise<void> {
 // ---------------------------------------------------------------------------
 // Cleanup helpers
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Place image on canvas
+// ---------------------------------------------------------------------------
+
+/**
+ * Place an uploaded image on the canvas at the default position.
+ */
+export function placeImage(
+  url: string,
+  objectKey: string | undefined,
+  dimensions?: { width: number; height: number },
+): void {
+  useCanvasStore
+    .getState()
+    .addImage(url, { x: 150, y: 100 }, dimensions, objectKey);
+}
+
+/**
+ * Place an uploaded image at a specific canvas-space coordinate.
+ */
+export function placeImageAt(
+  url: string,
+  objectKey: string | undefined,
+  canvasX: number,
+  canvasY: number,
+  dimensions?: { width: number; height: number },
+): void {
+  // Center the image on the drop point
+  const w = dimensions?.width ?? 250;
+  const h = dimensions?.height ?? Math.round(w);
+  const pos = { x: canvasX - w / 2, y: canvasY - h / 2 };
+
+  useCanvasStore.getState().addImage(url, pos, { width: w, height: h }, objectKey);
+}
+
+/**
+ * Measure an image's natural dimensions, scaled to fit within maxDim.
+ */
+export function getScaledDimensions(
+  naturalWidth: number,
+  naturalHeight: number,
+  maxDim = 250,
+): { width: number; height: number } {
+  let w = naturalWidth;
+  let h = naturalHeight;
+
+  if (w > maxDim || h > maxDim) {
+    const ratio = maxDim / Math.max(w, h);
+    w = Math.round(w * ratio);
+    h = Math.round(h * ratio);
+  }
+
+  return { width: w, height: h };
+}
 
 /**
  * Extract objectKey from a canvas element's style and delete the

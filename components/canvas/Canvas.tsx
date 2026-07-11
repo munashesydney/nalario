@@ -1,24 +1,26 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import { CanvasElement } from "../../lib/types/canvas";
 import { useCanvasStore } from "../../lib/store/canvas-store";
 import { DraggableElement } from "./CanvasElement";
 import { SelectionChrome } from "./SelectionChrome";
 import { FloatingToolbar } from "./FloatingToolbar";
 import { DesignSheet } from "../layout/DesignSheet";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, ImageUp } from "lucide-react";
+import {
+  useCanvasScale,
+  useCanvasKeyboard,
+  useImageDrop,
+  useMarqueeSelection,
+} from "../../hooks/canvas";
 
 export function Canvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [selectionStart, setSelectionStart] = useState({ x: 0, y: 0 });
-  const [selectionEnd, setSelectionEnd] = useState({ x: 0, y: 0 });
   const [isHoveringBg, setIsHoveringBg] = useState(false);
-  const isDraggingElement = useCanvasStore((s) => s.isDraggingElement);
-  
+
+  // ---- Store subscriptions ----
   const {
     elements,
     streamingElements,
@@ -28,172 +30,35 @@ export function Canvas() {
     deselectAll,
     updateElement,
     deleteElement,
-    addElement,
     activeSnapLines,
-    setMultiSelectedIds,
     multiSelectedIds,
+    setMultiSelectedIds,
     canvasWidth,
     canvasHeight,
     canvasBackgroundColor,
   } = useCanvasStore();
+  const isDraggingElement = useCanvasStore((s) => s.isDraggingElement);
 
-  const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (e.target === canvasRef.current) {
-      if (activeTool !== "select" && activeTool !== "image") {
-        deselectAll();
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+  // ---- Extracted behaviours ----
+  const scale = useCanvasScale(containerRef, canvasWidth, canvasHeight);
+  useCanvasKeyboard();
 
-        const rect = canvas.getBoundingClientRect();
-        const s = canvasWidth / rect.width;
-        const x = (e.clientX - rect.left) * s;
-        const y = (e.clientY - rect.top) * s;
+  const {
+    isSelecting,
+    selectionStart,
+    selectionEnd,
+    handleCanvasMouseDown,
+  } = useMarqueeSelection(canvasRef);
 
-        addElement(activeTool, { x: x - 75, y: y - 40 });
-        return;
-      }
+  const {
+    isDragOver,
+    isDragOverCanvas,
+    containerHandlers,
+    dropZoneHandlers,
+    canvasHandlers,
+  } = useImageDrop(canvasRef, canvasWidth, canvasHeight);
 
-      // Start marquee selection
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      
-      const rect = canvas.getBoundingClientRect();
-      const s = canvasWidth / rect.width;
-      const x = (e.clientX - rect.left) * s;
-      const y = (e.clientY - rect.top) * s;
-      
-      setIsSelecting(true);
-      setSelectionStart({ x, y });
-      setSelectionEnd({ x, y });
-    }
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isSelecting || !canvasRef.current) return;
-      
-      const rect = canvasRef.current.getBoundingClientRect();
-      const s = canvasWidth / rect.width;
-      const x = (e.clientX - rect.left) * s;
-      const y = (e.clientY - rect.top) * s;
-      
-      setSelectionEnd({
-        x: Math.max(0, Math.min(x, canvasWidth)),
-        y: Math.max(0, Math.min(y, canvasHeight)),
-      });
-    };
-
-    const handleMouseUp = () => {
-      if (!isSelecting) return;
-      setIsSelecting(false);
-
-      const minX = Math.min(selectionStart.x, selectionEnd.x);
-      const maxX = Math.max(selectionStart.x, selectionEnd.x);
-      const minY = Math.min(selectionStart.y, selectionEnd.y);
-      const maxY = Math.max(selectionStart.y, selectionEnd.y);
-
-      // Only count as a selection if they actually dragged a bit (e.g., > 5px)
-      if (maxX - minX > 5 || maxY - minY > 5) {
-        const selected = elements.filter((el) => {
-          const elMinX = el.position.x;
-          const elMaxX = el.position.x + el.dimensions.width;
-          const elMinY = el.position.y;
-          const elMaxY = el.position.y + el.dimensions.height;
-
-          // Check for intersection
-          return !(
-            maxX < elMinX ||
-            minX > elMaxX ||
-            maxY < elMinY ||
-            minY > elMaxY
-          );
-        });
-
-        if (selected.length > 0) {
-          setMultiSelectedIds(selected.map((s) => s.id));
-        } else {
-          deselectAll();
-        }
-      } else {
-        // Just a click on the canvas background
-        if (activeTool === "select") {
-          selectElement("canvas-background");
-        } else {
-          deselectAll();
-        }
-      }
-    };
-
-    if (isSelecting) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isSelecting, selectionStart, selectionEnd, elements, setMultiSelectedIds, deselectAll]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT") return;
-
-      if ((e.key === "Delete" || e.key === "Backspace") && selectedId && selectedId !== "canvas-background") {
-        deleteElement(selectedId);
-      }
-      if (e.key === "Escape") {
-        deselectAll();
-      }
-
-      // Undo / Redo
-      const isMod = e.metaKey || e.ctrlKey;
-      if (isMod && e.key === "z" && !e.shiftKey) {
-        e.preventDefault();
-        useCanvasStore.getState().undo();
-      }
-      if (isMod && e.key === "z" && e.shiftKey) {
-        e.preventDefault();
-        useCanvasStore.getState().redo();
-      }
-
-      // Tool shortcuts
-      if (e.key === "v" || e.key === "V") {
-        useCanvasStore.getState().setActiveTool("select");
-      }
-      if (e.key === "t" || e.key === "T") {
-        useCanvasStore.getState().setActiveTool("text");
-      }
-      if (e.key === "r" || e.key === "R") {
-        useCanvasStore.getState().setActiveTool("shape");
-      }
-      if (e.key === "i" || e.key === "I") {
-        useCanvasStore.getState().setActiveTool("image");
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedId, deleteElement, deselectAll]);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-      const { width, height } = entries[0].contentRect;
-      const padding = 64;
-      const availableWidth = Math.max(1, width - padding);
-      const availableHeight = Math.max(1, height - padding);
-      
-      const scaleX = availableWidth / canvasWidth;
-      const scaleY = availableHeight / canvasHeight;
-      
-      setScale(Math.max(0.1, Math.min(1, scaleX, scaleY)));
-    });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [canvasWidth, canvasHeight]);
-
+  // ---- Element update wrapper ----
   const handleElementUpdate =
     (id: string) => (updates: Partial<CanvasElement>) => {
       if (Object.keys(updates).length === 0 && selectedId === id) {
@@ -203,11 +68,28 @@ export function Canvas() {
       }
     };
 
+  // ---- Render ----
   return (
-    <div className="flex-1 w-full h-full flex overflow-hidden">
-      <div 
-        ref={containerRef} 
+    <div
+      className="flex-1 w-full h-full flex overflow-hidden"
+      {...containerHandlers}
+    >
+      {/* Global drop zone overlay — neobrutalism card */}
+      {isDragOver && !isDragOverCanvas && (
+        <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center bg-zinc-900/20">
+          <div className="bg-white border-4 border-zinc-900 shadow-[8px_8px_0px_rgba(24,24,27,1)] px-8 py-6 flex flex-col items-center gap-3">
+            <ImageUp className="w-8 h-8 text-zinc-900 stroke-[2.5]" />
+            <span className="text-sm font-bold uppercase text-zinc-900">
+              Drop image anywhere on canvas
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div
+        ref={containerRef}
         className="flex-1 h-full flex items-center justify-center relative overflow-hidden"
+        {...dropZoneHandlers}
         onMouseDown={(e) => {
           // Clicking directly on the gray area outside the canvas deselects everything
           if (e.target === containerRef.current) {
@@ -215,7 +97,13 @@ export function Canvas() {
           }
         }}
       >
-        <div className="relative" style={{ transform: `scale(${scale})`, transformOrigin: "center" }}>
+        <div
+          className="relative"
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: "center",
+          }}
+        >
           <DesignSheet
             className="relative"
             style={{
@@ -224,13 +112,30 @@ export function Canvas() {
               backgroundColor: canvasBackgroundColor || "#ffffff",
             }}
           >
-            {/* Background Selection / Hover Border (suppressed while dragging) */}
-            {!isDraggingElement && (selectedId === "canvas-background" || isHoveringBg) && (
-              <div 
-                className={`absolute inset-0 pointer-events-none transition-colors ${
-                  selectedId === "canvas-background" ? "border-4 border-pink-500" : "border-4 border-pink-300"
-                }`} 
-              />
+            {/* Background selection / hover border */}
+            {!isDraggingElement &&
+              (selectedId === "canvas-background" || isHoveringBg) && (
+                <div
+                  className={`absolute inset-0 pointer-events-none transition-colors ${
+                    selectedId === "canvas-background"
+                      ? "border-4 border-pink-500"
+                      : "border-4 border-pink-300"
+                  }`}
+                />
+              )}
+
+            {/* Canvas-surface drag overlay — neobrutalism badge */}
+            {isDragOverCanvas && (
+              <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
+                <div className="absolute inset-0 bg-white/60" />
+                <div className="absolute inset-3 border-[3px] border-dashed border-zinc-900" />
+                <div className="relative bg-white border-4 border-zinc-900 shadow-[4px_4px_0px_rgba(24,24,27,1)] px-5 py-3 flex items-center gap-3">
+                  <ImageUp className="w-5 h-5 text-zinc-900 stroke-[2.5]" />
+                  <span className="text-xs font-bold uppercase text-zinc-900">
+                    Drop to add
+                  </span>
+                </div>
+              </div>
             )}
 
             <div
@@ -238,11 +143,9 @@ export function Canvas() {
               data-canvas
               onMouseDown={handleCanvasMouseDown}
               onMouseOver={(e) => {
-                // Only show background hover when directly over empty canvas space
                 setIsHoveringBg(e.target === canvasRef.current);
               }}
               onMouseOut={(e) => {
-                // Hide background hover when mouse leaves the canvas entirely
                 if (
                   !e.relatedTarget ||
                   !canvasRef.current?.contains(e.relatedTarget as Node)
@@ -250,10 +153,13 @@ export function Canvas() {
                   setIsHoveringBg(false);
                 }
               }}
+              {...canvasHandlers}
               className="absolute inset-0"
             >
               {[...elements, ...streamingElements].map((element) => {
-                const isStreaming = streamingElements.some((s) => s.id === element.id);
+                const isStreaming = streamingElements.some(
+                  (s) => s.id === element.id,
+                );
                 return (
                   <DraggableElement
                     key={element.id}
@@ -271,7 +177,9 @@ export function Canvas() {
               {!elements.length && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 pointer-events-none">
                   <HelpCircle className="w-6 h-6 mb-2 text-zinc-300" />
-                  <p className="text-sm font-medium text-zinc-500">Nalario is empty</p>
+                  <p className="text-sm font-medium text-zinc-500">
+                    Nalario is empty
+                  </p>
                   <p className="text-xs text-zinc-400 mt-1">
                     Use the toolbar or press T, R, I to add elements
                   </p>
@@ -280,19 +188,22 @@ export function Canvas() {
             </div>
           </DesignSheet>
 
-          {/* Selection overlay — renders outside DesignSheet so handles are never clipped */}
-          {selectedId && selectedId !== "canvas-background" && (() => {
-            const el = [...elements, ...streamingElements].find((e) => e.id === selectedId);
-            if (!el) return null;
-            return (
-              <SelectionChrome
-                element={el}
-                canvasBounds={{ width: canvasWidth, height: canvasHeight }}
-              />
-            );
-          })()}
+          {/* Selection overlay — outside DesignSheet so handles are never clipped */}
+          {selectedId && selectedId !== "canvas-background" &&
+            (() => {
+              const el = [...elements, ...streamingElements].find(
+                (e) => e.id === selectedId,
+              );
+              if (!el) return null;
+              return (
+                <SelectionChrome
+                  element={el}
+                  canvasBounds={{ width: canvasWidth, height: canvasHeight }}
+                />
+              );
+            })()}
 
-          {/* Render Snap Guides — outside DesignSheet so they're never clipped */}
+          {/* Snap guides */}
           {activeSnapLines.map((line, idx) => {
             const isVertical = line.axis === "x";
             if (line.dashed) {
@@ -323,7 +234,7 @@ export function Canvas() {
             );
           })}
 
-          {/* Render Marquee Selection Box — outside DesignSheet so it's never clipped */}
+          {/* Marquee selection box */}
           {isSelecting && (
             <div
               className="absolute border border-pink-500 bg-pink-500/20 pointer-events-none z-50"
