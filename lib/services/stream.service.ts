@@ -5,6 +5,7 @@ export type StreamCallbacks = {
   onReasoningDelta?: (delta: string) => void;
   onElementDelta?: (elements: CanvasElement[]) => void;
   onElementAdded?: (elements: CanvasElement[]) => void;
+  onCanvasSynced?: (elements: CanvasElement[]) => void;
   onDone?: (jobId: string) => void;
   onError?: (message: string) => void;
 };
@@ -57,6 +58,19 @@ class StreamService {
           }
         } catch (err) {
           console.error("[StreamService] Error parsing element-added:", err);
+        }
+      }
+    });
+
+    eventSource.addEventListener("canvas-synced", (e: MessageEvent) => {
+      if (callbacks.onCanvasSynced) {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload.elements) {
+            callbacks.onCanvasSynced(payload.elements);
+          }
+        } catch (err) {
+          console.error("[StreamService] Error parsing canvas-synced:", err);
         }
       }
     });

@@ -24,7 +24,7 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { 
-    messages, addMessage, updateMessage, addElements, panelPosition,
+    messages, addMessage, updateMessage, addElements, setElements, panelPosition,
     chats, activeChatId, setChats, setActiveChatId, setMessages,
     canvasWidth, canvasHeight, elements,
     setStreamingElements, clearStreamingElements
@@ -163,6 +163,10 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
           },
           onElementAdded: (newElements) => {
             addElements(newElements);
+            clearStreamingElements();
+          },
+          onCanvasSynced: (elements) => {
+            setElements(elements);
             clearStreamingElements();
           },
           onDone: () => {
