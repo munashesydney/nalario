@@ -5,6 +5,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { CanvasElement as CanvasElementType } from "../../lib/types/canvas";
 import { Image } from "lucide-react";
 import { useDrag } from "../../hooks/canvas";
+import { useCanvasStore } from "../../lib/store/canvas-store";
 import {
   pointsToString,
   computePathViewBox,
@@ -32,6 +33,7 @@ export function DraggableElement({
 }: DraggableElementProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const isDraggingElement = useCanvasStore((s) => s.isDraggingElement);
   const [editContent, setEditContent] = useState(element.content || "");
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
@@ -297,8 +299,8 @@ export function DraggableElement({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Hover border (only if not hovered + not selected/multi-selected) */}
-      {isHovered && !isSelected && !isMultiSelected && (
+      {/* Hover border (suppressed while another element is being dragged) */}
+      {isHovered && !isDraggingElement && !isSelected && !isMultiSelected && (
         <div className="absolute -inset-0.5 border-2 border-pink-300 pointer-events-none" />
       )}
 

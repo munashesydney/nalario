@@ -17,6 +17,7 @@ export function Canvas() {
   const [selectionStart, setSelectionStart] = useState({ x: 0, y: 0 });
   const [selectionEnd, setSelectionEnd] = useState({ x: 0, y: 0 });
   const [isHoveringBg, setIsHoveringBg] = useState(false);
+  const isDraggingElement = useCanvasStore((s) => s.isDraggingElement);
   
   const {
     elements,
@@ -222,11 +223,9 @@ export function Canvas() {
               height: canvasHeight,
               backgroundColor: canvasBackgroundColor || "#ffffff",
             }}
-            onMouseEnter={() => setIsHoveringBg(true)}
-            onMouseLeave={() => setIsHoveringBg(false)}
           >
-            {/* Background Selection / Hover Border */}
-            {(selectedId === "canvas-background" || isHoveringBg) && (
+            {/* Background Selection / Hover Border (suppressed while dragging) */}
+            {!isDraggingElement && (selectedId === "canvas-background" || isHoveringBg) && (
               <div 
                 className={`absolute inset-0 pointer-events-none transition-colors ${
                   selectedId === "canvas-background" ? "border-4 border-pink-500" : "border-4 border-pink-300"
@@ -238,6 +237,19 @@ export function Canvas() {
               ref={canvasRef}
               data-canvas
               onMouseDown={handleCanvasMouseDown}
+              onMouseOver={(e) => {
+                // Only show background hover when directly over empty canvas space
+                setIsHoveringBg(e.target === canvasRef.current);
+              }}
+              onMouseOut={(e) => {
+                // Hide background hover when mouse leaves the canvas entirely
+                if (
+                  !e.relatedTarget ||
+                  !canvasRef.current?.contains(e.relatedTarget as Node)
+                ) {
+                  setIsHoveringBg(false);
+                }
+              }}
               className="absolute inset-0"
             >
               {[...elements, ...streamingElements].map((element) => {

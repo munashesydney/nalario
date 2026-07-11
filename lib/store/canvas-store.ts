@@ -29,6 +29,7 @@ interface CanvasStore {
   panelPosition: "left" | "right";
   activeSnapLines: SnapLine[];
   multiSelectedIds: string[];
+  isDraggingElement: boolean;
   messages: AIMessage[];
   activeChatId: string | null;
   chats: AIChat[];
@@ -74,6 +75,7 @@ interface CanvasStore {
   clearStreamingElements: () => void;
   setCanvasDimensions: (width: number, height: number) => void;
   setCanvasBackgroundColor: (color: string) => void;
+  setIsDraggingElement: (dragging: boolean) => void;
 }
 
 const MAX_HISTORY = 100;
@@ -94,6 +96,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   panelPosition: "left",
   activeSnapLines: [],
   multiSelectedIds: [],
+  isDraggingElement: false,
   messages: SEED_MESSAGES,
   activeChatId: null,
   chats: [],
@@ -306,6 +309,10 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
       return { elements: newElements };
     });
+  },
+
+  setIsDraggingElement: (dragging: boolean) => {
+    set({ isDraggingElement: dragging });
   },
 
   setMultiSelectedIds: (ids) => {

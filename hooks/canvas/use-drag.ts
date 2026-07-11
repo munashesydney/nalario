@@ -36,6 +36,7 @@ export function useDrag({
       onSelect();
       setIsDragging(true);
       useCanvasStore.getState().pushHistory();
+      useCanvasStore.getState().setIsDraggingElement(true);
 
       const rect = elementRef.current?.getBoundingClientRect();
       if (rect) {
@@ -221,6 +222,7 @@ export function useDrag({
     const handleMouseUp = () => {
       setIsDragging(false);
       useCanvasStore.getState().setActiveSnapLines([]);
+      useCanvasStore.getState().setIsDraggingElement(false);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
