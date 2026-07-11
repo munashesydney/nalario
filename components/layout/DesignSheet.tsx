@@ -16,7 +16,7 @@ export function DesignSheet({ children, className, style, ...props }: DesignShee
   return (
     <div
       className={cn(
-        'relative bg-white overflow-hidden',
+        'relative bg-white',
         className
       )}
       style={{
