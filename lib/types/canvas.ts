@@ -26,6 +26,7 @@ export interface CanvasElement {
 }
 
 export type TextAlign = "left" | "center" | "right";
+export type VerticalAlign = "top" | "middle" | "bottom";
 export type FontStyle = "normal" | "italic";
 export type TextDecoration = "none" | "underline" | "line-through";
 
@@ -37,6 +38,8 @@ export interface ElementStyle {
   fontStyle?: FontStyle;
   textDecoration?: TextDecoration;
   textAlign?: TextAlign;
+  verticalAlign?: VerticalAlign;
+  textSizing?: "auto" | "fixed";
   color?: string;
   backgroundColor?: string;
 

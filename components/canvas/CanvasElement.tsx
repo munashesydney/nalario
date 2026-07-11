@@ -148,11 +148,18 @@ export function DraggableElement({
           </div>
         );
 
-      case "text":
+      case "text": {
+        const vAlign = element.style?.verticalAlign || "top";
+        const alignClass = 
+          vAlign === "middle" ? "items-center" : 
+          vAlign === "bottom" ? "items-end" : 
+          "items-start";
+        const isFixedSize = element.style?.textSizing === "fixed";
+
         return (
           <div
             ref={textContentRef}
-            className="w-full min-h-full flex items-start py-1 px-2"
+            className={`w-full ${isFixedSize ? "h-full" : "min-h-full"} flex ${alignClass} py-1 px-2`}
             style={{
               backgroundColor: element.style?.backgroundColor || "transparent",
             }}
@@ -167,7 +174,7 @@ export function DraggableElement({
               }}
               readOnly={!isEditing}
               onHeightChange={(height) => {
-                if (element.dimensions && height !== element.dimensions.height) {
+                if (!isFixedSize && isEditing && element.dimensions && height !== element.dimensions.height) {
                   onUpdate({
                     dimensions: {
                       ...element.dimensions,
@@ -192,6 +199,7 @@ export function DraggableElement({
             />
           </div>
         );
+      }
 
       case "shape":
         return renderShape();
@@ -299,7 +307,9 @@ export function DraggableElement({
         ...(isText
           ? {
               width: element.dimensions?.width ?? 100,
-              minHeight: element.dimensions?.height ?? 20,
+              ...(element.style?.textSizing === "fixed" 
+                ? { height: element.dimensions?.height ?? 20 }
+                : { minHeight: element.dimensions?.height ?? 20 }),
             }
           : {
               width: element.dimensions?.width ?? 100,

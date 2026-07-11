@@ -52,11 +52,18 @@ export function ElementRenderer({ element, isEditing, editContent }: ElementRend
         </div>
       );
 
-    case "text":
+    case "text": {
+      const vAlign = element.style?.verticalAlign || "top";
+      const alignClass = 
+        vAlign === "middle" ? "items-center" : 
+        vAlign === "bottom" ? "items-end" : 
+        "items-start";
+      const isFixedSize = element.style?.textSizing === "fixed";
+
       // For read-only previews or non-editing states, we just render a div to perfectly match the layout
       return (
         <div
-          className="w-full min-h-full flex items-start py-1 px-2 whitespace-pre-wrap break-words"
+          className={`w-full ${isFixedSize ? "h-full" : "min-h-full"} flex ${alignClass} py-1 px-2 whitespace-pre-wrap break-words`}
           style={{
             backgroundColor: element.style?.backgroundColor || "transparent",
             fontSize: element.style?.fontSize,
@@ -72,6 +79,7 @@ export function ElementRenderer({ element, isEditing, editContent }: ElementRend
           {isEditing ? editContent : element.content}
         </div>
       );
+    }
 
     case "shape":
       return renderShape(element);
