@@ -256,42 +256,6 @@ export function Canvas() {
                 );
               })}
 
-              {/* Render Snap Guides */}
-              {activeSnapLines.map((line, idx) => (
-                <div
-                  key={`snap-${idx}`}
-                  className="absolute bg-pink-500 pointer-events-none z-50"
-                  style={
-                    line.axis === "x"
-                      ? {
-                          left: line.value,
-                          top: 0,
-                          bottom: 0,
-                          width: 1,
-                        }
-                      : {
-                          top: line.value,
-                          left: 0,
-                          right: 0,
-                          height: 1,
-                        }
-                  }
-                />
-              ))}
-
-              {/* Render Marquee Selection Box */}
-              {isSelecting && (
-                <div
-                  className="absolute border border-pink-500 bg-pink-500/20 pointer-events-none z-50"
-                  style={{
-                    left: Math.min(selectionStart.x, selectionEnd.x),
-                    top: Math.min(selectionStart.y, selectionEnd.y),
-                    width: Math.abs(selectionEnd.x - selectionStart.x),
-                    height: Math.abs(selectionEnd.y - selectionStart.y),
-                  }}
-                />
-              )}
-
               {!elements.length && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 pointer-events-none">
                   <HelpCircle className="w-6 h-6 mb-2 text-zinc-300" />
@@ -315,6 +279,42 @@ export function Canvas() {
               />
             );
           })()}
+
+          {/* Render Snap Guides — outside DesignSheet so they're never clipped */}
+          {activeSnapLines.map((line, idx) => (
+            <div
+              key={`snap-${idx}`}
+              className="absolute bg-pink-500 pointer-events-none z-50"
+              style={
+                line.axis === "x"
+                  ? {
+                      left: line.value,
+                      top: 0,
+                      bottom: 0,
+                      width: 1,
+                    }
+                  : {
+                      top: line.value,
+                      left: 0,
+                      right: 0,
+                      height: 1,
+                    }
+              }
+            />
+          ))}
+
+          {/* Render Marquee Selection Box — outside DesignSheet so it's never clipped */}
+          {isSelecting && (
+            <div
+              className="absolute border border-pink-500 bg-pink-500/20 pointer-events-none z-50"
+              style={{
+                left: Math.min(selectionStart.x, selectionEnd.x),
+                top: Math.min(selectionStart.y, selectionEnd.y),
+                width: Math.abs(selectionEnd.x - selectionStart.x),
+                height: Math.abs(selectionEnd.y - selectionStart.y),
+              }}
+            />
+          )}
 
           <FloatingToolbar scale={scale} />
         </div>
