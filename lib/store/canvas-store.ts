@@ -13,6 +13,7 @@ import { AIChat } from "../models/ai-chat.model";
 export interface SnapLine {
   axis: "x" | "y";
   value: number;
+  dashed?: boolean;
 }
 
 const SEED_MESSAGES: AIMessage[] = [];

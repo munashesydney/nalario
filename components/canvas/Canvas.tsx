@@ -281,27 +281,35 @@ export function Canvas() {
           })()}
 
           {/* Render Snap Guides — outside DesignSheet so they're never clipped */}
-          {activeSnapLines.map((line, idx) => (
-            <div
-              key={`snap-${idx}`}
-              className="absolute bg-pink-500 pointer-events-none z-50"
-              style={
-                line.axis === "x"
-                  ? {
-                      left: line.value,
-                      top: 0,
-                      bottom: 0,
-                      width: 1,
-                    }
-                  : {
-                      top: line.value,
-                      left: 0,
-                      right: 0,
-                      height: 1,
-                    }
-              }
-            />
-          ))}
+          {activeSnapLines.map((line, idx) => {
+            const isVertical = line.axis === "x";
+            if (line.dashed) {
+              return (
+                <div
+                  key={`snap-${idx}`}
+                  className={`absolute pointer-events-none z-50 border-dashed border-pink-400/60 ${
+                    isVertical ? "border-l" : "border-t"
+                  }`}
+                  style={{
+                    [isVertical ? "left" : "top"]: line.value,
+                    [isVertical ? "top" : "left"]: 0,
+                    [isVertical ? "bottom" : "right"]: 0,
+                  }}
+                />
+              );
+            }
+            return (
+              <div
+                key={`snap-${idx}`}
+                className="absolute bg-pink-500 pointer-events-none z-50"
+                style={
+                  isVertical
+                    ? { left: line.value, top: 0, bottom: 0, width: 1 }
+                    : { top: line.value, left: 0, right: 0, height: 1 }
+                }
+              />
+            );
+          })}
 
           {/* Render Marquee Selection Box — outside DesignSheet so it's never clipped */}
           {isSelecting && (
