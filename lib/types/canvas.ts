@@ -53,6 +53,7 @@ export interface ElementStyle {
 
   // Image
   src?: string;
+  objectKey?: string;
 }
 
 export interface CanvasState {

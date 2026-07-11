@@ -49,6 +49,7 @@ interface CanvasStore {
     src: string,
     position?: { x: number; y: number },
     dimensions?: { width: number; height: number },
+    objectKey?: string,
   ) => void;
   addElements: (elements: CanvasElement[]) => void;
   updateElement: (id: string, updates: Partial<CanvasElement>) => void;
@@ -163,7 +164,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     }));
   },
 
-  addImage: (src, position, dimensions) => {
+  addImage: (src, position, dimensions, objectKey) => {
     get().pushHistory();
     const id = generateId();
     const element: CanvasElement = {
@@ -173,6 +174,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
       dimensions: dimensions || { width: 200, height: 200 },
       style: {
         src,
+        ...(objectKey ? { objectKey } : {}),
         backgroundColor: "transparent",
       },
     };
