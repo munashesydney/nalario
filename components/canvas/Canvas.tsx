@@ -36,6 +36,7 @@ export function Canvas() {
   } = useCanvasStore();
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (e.target === canvasRef.current) {
       if (activeTool !== "select" && activeTool !== "image") {
         deselectAll();
@@ -193,6 +194,12 @@ export function Canvas() {
       <div 
         ref={containerRef} 
         className="flex-1 h-full flex items-center justify-center relative overflow-hidden"
+        onMouseDown={(e) => {
+          // Clicking directly on the gray area outside the canvas deselects everything
+          if (e.target === containerRef.current) {
+            deselectAll();
+          }
+        }}
       >
         <div className="relative" style={{ transform: `scale(${scale})`, transformOrigin: "center" }}>
           <DesignSheet
