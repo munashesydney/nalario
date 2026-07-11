@@ -12,23 +12,14 @@ import {
 // ---------------------------------------------------------------------------
 
 export interface UseImageDropReturn {
-  /** True when a file is being dragged over the outer container */
+  /** True when a file is being dragged over the viewport */
   isDragOver: boolean;
-  /** True when the cursor is directly over the canvas element */
-  isDragOverCanvas: boolean;
   /** Spread onto the outermost container div */
   containerHandlers: {
     onDragEnter: (e: React.DragEvent) => void;
   };
-  /** Spread onto the element that wraps the scaled canvas */
+  /** Spread onto the drop target (the container wrapping the canvas) */
   dropZoneHandlers: {
-    onDragOver: (e: React.DragEvent) => void;
-    onDragLeave: (e: React.DragEvent) => void;
-    onDrop: (e: React.DragEvent) => void;
-  };
-  /** Spread directly onto the canvas surface div */
-  canvasHandlers: {
-    onDragEnter: (e: React.DragEvent) => void;
     onDragOver: (e: React.DragEvent) => void;
     onDragLeave: (e: React.DragEvent) => void;
     onDrop: (e: React.DragEvent) => void;
@@ -51,7 +42,6 @@ export function useImageDrop(
   canvasHeight: number,
 ): UseImageDropReturn {
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isDragOverCanvas, setIsDragOverCanvas] = useState(false);
   const dragEnterCounter = useRef(0);
 
   // ---- Coordinate mapping -------------------------------------------------
@@ -121,7 +111,6 @@ export function useImageDrop(
     if (dragEnterCounter.current <= 0) {
       dragEnterCounter.current = 0;
       setIsDragOver(false);
-      setIsDragOverCanvas(false);
     }
   }, []);
 
@@ -130,7 +119,6 @@ export function useImageDrop(
       e.preventDefault();
       e.stopPropagation();
       setIsDragOver(false);
-      setIsDragOverCanvas(false);
       dragEnterCounter.current = 0;
 
       const file = e.dataTransfer.files?.[0];
@@ -141,37 +129,14 @@ export function useImageDrop(
     [handleDropFile],
   );
 
-  // ---- Canvas-surface handlers --------------------------------------------
-
-  const handleDragEnterCanvas = useCallback((e: React.DragEvent) => {
-    if (!e.dataTransfer.types.includes("Files")) return;
-    e.preventDefault();
-    setIsDragOverCanvas(true);
-  }, []);
-
-  const handleDragLeaveCanvas = useCallback((e: React.DragEvent) => {
-    if (!e.dataTransfer.types.includes("Files")) return;
-    e.preventDefault();
-    setIsDragOverCanvas(false);
-  }, []);
-
-  // ---- Return spreadable handler groups -----------------------------------
-
   return {
     isDragOver,
-    isDragOverCanvas,
     containerHandlers: {
       onDragEnter: handleDragEnter,
     },
     dropZoneHandlers: {
       onDragOver: handleDragOver,
       onDragLeave: handleDragLeave,
-      onDrop: handleDrop,
-    },
-    canvasHandlers: {
-      onDragEnter: handleDragEnterCanvas,
-      onDragOver: handleDragOver,
-      onDragLeave: handleDragLeaveCanvas,
       onDrop: handleDrop,
     },
   };

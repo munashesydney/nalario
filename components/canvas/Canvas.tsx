@@ -52,10 +52,8 @@ export function Canvas() {
 
   const {
     isDragOver,
-    isDragOverCanvas,
     containerHandlers,
     dropZoneHandlers,
-    canvasHandlers,
   } = useImageDrop(canvasRef, canvasWidth, canvasHeight);
 
   // ---- Element update wrapper ----
@@ -74,17 +72,7 @@ export function Canvas() {
       className="flex-1 w-full h-full flex overflow-hidden"
       {...containerHandlers}
     >
-      {/* Global drop zone overlay — neobrutalism card */}
-      {isDragOver && !isDragOverCanvas && (
-        <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center bg-zinc-900/20">
-          <div className="bg-white border-4 border-zinc-900 shadow-[8px_8px_0px_rgba(24,24,27,1)] px-8 py-6 flex flex-col items-center gap-3">
-            <ImageUp className="w-8 h-8 text-zinc-900 stroke-[2.5]" />
-            <span className="text-sm font-bold uppercase text-zinc-900">
-              Drop image anywhere on canvas
-            </span>
-          </div>
-        </div>
-      )}
+
 
       <div
         ref={containerRef}
@@ -124,8 +112,8 @@ export function Canvas() {
                 />
               )}
 
-            {/* Canvas-surface drag overlay — neobrutalism badge */}
-            {isDragOverCanvas && (
+            {/* Drag overlay — shows anywhere in the viewport */}
+            {isDragOver && (
               <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
                 <div className="absolute inset-0 bg-white/60" />
                 <div className="absolute inset-3 border-[3px] border-dashed border-zinc-900" />
@@ -153,7 +141,7 @@ export function Canvas() {
                   setIsHoveringBg(false);
                 }
               }}
-              {...canvasHandlers}
+              {...dropZoneHandlers}
               className="absolute inset-0"
             >
               {[...elements, ...streamingElements].map((element) => {
