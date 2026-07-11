@@ -115,9 +115,6 @@ export function useDrag({
 
       useCanvasStore.getState().setActiveSnapLines(activeSnaps);
 
-      newX = Math.max(0, Math.min(newX, canvasBounds.width - actualWidth));
-      newY = Math.max(0, Math.min(newY, canvasBounds.height - actualHeight));
-
       onUpdate({ position: { x: newX, y: newY } });
     };
 

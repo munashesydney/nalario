@@ -53,18 +53,18 @@ export function useResize({
 
         switch (handle) {
           case "tl":
-            newPos.x = Math.max(0, startPos.x + dx);
-            newPos.y = Math.max(0, startPos.y + dy);
+            newPos.x = startPos.x + dx;
+            newPos.y = startPos.y + dy;
             newDims.width = Math.max(MIN_DIMS.width, startDims.width - dx);
             newDims.height = Math.max(MIN_DIMS.height, startDims.height - dy);
             break;
           case "tr":
-            newPos.y = Math.max(0, startPos.y + dy);
+            newPos.y = startPos.y + dy;
             newDims.width = Math.max(MIN_DIMS.width, startDims.width + dx);
             newDims.height = Math.max(MIN_DIMS.height, startDims.height - dy);
             break;
           case "bl":
-            newPos.x = Math.max(0, startPos.x + dx);
+            newPos.x = startPos.x + dx;
             newDims.width = Math.max(MIN_DIMS.width, startDims.width - dx);
             newDims.height = Math.max(MIN_DIMS.height, startDims.height + dy);
             break;
@@ -73,7 +73,7 @@ export function useResize({
             newDims.height = Math.max(MIN_DIMS.height, startDims.height + dy);
             break;
           case "l":
-            newPos.x = Math.max(0, startPos.x + dx);
+            newPos.x = startPos.x + dx;
             newDims.width = Math.max(MIN_DIMS.width, startDims.width - dx);
             break;
           case "r":
@@ -108,11 +108,8 @@ export function useResize({
           }
         }
 
-        newDims.width = Math.min(newDims.width, canvasBounds.width - newPos.x);
-        newDims.height = Math.min(
-          newDims.height,
-          canvasBounds.height - newPos.y,
-        );
+        // No canvas bounds clamp — elements can resize freely beyond the canvas
+        // (mirrors Canva/Figma behavior)
 
         onUpdate({ position: newPos, dimensions: newDims, ...(newStyle && { style: newStyle }) });
       };
