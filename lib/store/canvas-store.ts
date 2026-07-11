@@ -35,6 +35,13 @@ interface CanvasStore {
   canvasHeight: number;
   canvasBackgroundColor: string;
 
+  history: CanvasElement[][];
+  futureHistory: CanvasElement[][];
+
+  pushHistory: () => void;
+  undo: () => void;
+  redo: () => void;
+
   addElement: (type: ElementType, position?: { x: number; y: number }) => void;
   addImage: (
     src: string,
@@ -68,6 +75,13 @@ interface CanvasStore {
   setCanvasBackgroundColor: (color: string) => void;
 }
 
+const MAX_HISTORY = 100;
+
+// Helper: deep-clone elements array for history snapshots
+function cloneElements(elements: CanvasElement[]): CanvasElement[] {
+  return JSON.parse(JSON.stringify(elements));
+}
+
 export const useCanvasStore = create<CanvasStore>((set, get) => ({
   elements: [],
   streamingElements: [],
@@ -85,8 +99,46 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   canvasWidth: 1920,
   canvasHeight: 1080,
   canvasBackgroundColor: "#ffffff",
+  history: [],
+  futureHistory: [],
+
+  pushHistory: () => {
+    set((state) => ({
+      history: [...state.history, cloneElements(state.elements)].slice(-MAX_HISTORY),
+      futureHistory: [],
+    }));
+  },
+
+  undo: () => {
+    const state = get();
+    if (state.history.length === 0) return;
+    const previous = state.history[state.history.length - 1];
+    set({
+      history: state.history.slice(0, -1),
+      futureHistory: [...state.futureHistory, cloneElements(state.elements)],
+      elements: previous,
+      selectedId: null,
+      multiSelectedIds: [],
+      activePanel: null,
+    });
+  },
+
+  redo: () => {
+    const state = get();
+    if (state.futureHistory.length === 0) return;
+    const next = state.futureHistory[state.futureHistory.length - 1];
+    set({
+      futureHistory: state.futureHistory.slice(0, -1),
+      history: [...state.history, cloneElements(state.elements)],
+      elements: next,
+      selectedId: null,
+      multiSelectedIds: [],
+      activePanel: null,
+    });
+  },
 
   addElement: (type, position) => {
+    get().pushHistory();
     const shapeKind = type === "shape" ? get().activeShapeKind : undefined;
     const pathData =
       type === "shape" && shapeKind === "custom"
@@ -108,6 +160,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   addImage: (src, position, dimensions) => {
+    get().pushHistory();
     const id = generateId();
     const element: CanvasElement = {
       id,
@@ -127,12 +180,14 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   addElements: (newElements) => {
+    get().pushHistory();
     set((state) => ({
       elements: [...state.elements, ...newElements],
     }));
   },
 
   setElements: (elements) => {
+    get().pushHistory();
     set({ elements, selectedId: null, multiSelectedIds: [], activePanel: null });
   },
 
@@ -153,14 +208,29 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   updateElement: (id, updates) => {
-    set((state) => ({
-      elements: state.elements.map((el) =>
-        el.id === id ? { ...el, ...updates } : el,
-      ),
-    }));
+    set((state) => {
+      // Drag/resize push their own history snapshot once at the start,
+      // so we skip snapshotting for position/dimensions-only updates
+      // (which are continuous mousemove updates during drag/resize).
+      // Content edits (e.g. text content) and style-panel changes
+      // include other keys (content, style) and will snapshot.
+      const updateKeys = Object.keys(updates);
+      const isDragOrResizeOnly =
+        updateKeys.length > 0 &&
+        updateKeys.every((k) => k === "position" || k === "dimensions");
+      if (!isDragOrResizeOnly) {
+        get().pushHistory();
+      }
+      return {
+        elements: state.elements.map((el) =>
+          el.id === id ? { ...el, ...updates } : el,
+        ),
+      };
+    });
   },
 
   deleteElement: (id) => {
+    get().pushHistory();
     set((state) => ({
       elements: state.elements.filter((el) => el.id !== id),
       selectedId: state.selectedId === id ? null : state.selectedId,
@@ -215,6 +285,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   reorderElement: (id, action) => {
+    get().pushHistory();
     set((state) => {
       const idx = state.elements.findIndex((el) => el.id === id);
       if (idx === -1) return state;
@@ -241,6 +312,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   groupElements: () => {
+    get().pushHistory();
     set((state) => {
       if (state.multiSelectedIds.length < 2) return state;
 
@@ -289,6 +361,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   ungroupElement: (groupId) => {
+    get().pushHistory();
     set((state) => {
       const groupIdx = state.elements.findIndex(el => el.id === groupId);
       if (groupIdx === -1) return state;

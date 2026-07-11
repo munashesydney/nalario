@@ -27,7 +27,9 @@ import { useModalStore } from "../../lib/store/modal-store";
 import { exportAsPNG, exportAsSVG, exportAsPDF, exportAsJSON, importFromJSON } from "../../lib/services/export-service";
 
 export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project", workspaceId }: { chatPanelOpen?: boolean, projectName?: string, workspaceId?: string }) {
-  const { setElements, deselectAll } = useCanvasStore();
+  const { setElements, deselectAll, undo, redo } = useCanvasStore();
+  const canUndo = useCanvasStore((s) => s.history.length > 0);
+  const canRedo = useCanvasStore((s) => s.futureHistory.length > 0);
   const { openModal } = useModalStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,10 +58,26 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
       {/* Absolutely centered undo/redo */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="flex items-center gap-1 pointer-events-auto">
-          <button className="p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-colors">
+          <button
+            onClick={undo}
+            disabled={!canUndo}
+            className={`p-2 transition-colors ${
+              canUndo
+                ? "text-zinc-700 hover:bg-zinc-100 cursor-pointer"
+                : "text-zinc-300 cursor-not-allowed"
+            }`}
+          >
             <Undo className="w-4 h-4" />
           </button>
-          <button className="p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-colors">
+          <button
+            onClick={redo}
+            disabled={!canRedo}
+            className={`p-2 transition-colors ${
+              canRedo
+                ? "text-zinc-700 hover:bg-zinc-100 cursor-pointer"
+                : "text-zinc-300 cursor-not-allowed"
+            }`}
+          >
             <Redo className="w-4 h-4" />
           </button>
         </div>

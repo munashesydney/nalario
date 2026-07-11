@@ -35,6 +35,7 @@ export function useDrag({
       e.stopPropagation();
       onSelect();
       setIsDragging(true);
+      useCanvasStore.getState().pushHistory();
 
       const rect = elementRef.current?.getBoundingClientRect();
       if (rect) {

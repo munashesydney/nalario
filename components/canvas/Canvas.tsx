@@ -144,6 +144,18 @@ export function Canvas() {
       if (e.key === "Escape") {
         deselectAll();
       }
+
+      // Undo / Redo
+      const isMod = e.metaKey || e.ctrlKey;
+      if (isMod && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        useCanvasStore.getState().undo();
+      }
+      if (isMod && e.key === "z" && e.shiftKey) {
+        e.preventDefault();
+        useCanvasStore.getState().redo();
+      }
+
       // Tool shortcuts
       if (e.key === "v" || e.key === "V") {
         useCanvasStore.getState().setActiveTool("select");

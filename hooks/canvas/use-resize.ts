@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { CanvasElement as CanvasElementType } from "../../lib/types/canvas";
+import { useCanvasStore } from "../../lib/store/canvas-store";
 
 export type ResizeHandle = "tl" | "tr" | "bl" | "br" | "l" | "r";
 
@@ -28,6 +29,7 @@ export function useResize({
     (e: React.MouseEvent, handle: ResizeHandle) => {
       e.stopPropagation();
       e.preventDefault();
+      useCanvasStore.getState().pushHistory();
 
       const startMouse = { x: e.clientX, y: e.clientY };
       const startPos = { x: element.position.x, y: element.position.y };
