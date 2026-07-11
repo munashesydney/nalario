@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { CanvasElement } from "../../lib/types/canvas";
 import { useCanvasStore } from "../../lib/store/canvas-store";
 import { DraggableElement } from "./CanvasElement";
+import { SelectionChrome } from "./SelectionChrome";
 import { FloatingToolbar } from "./FloatingToolbar";
 import { DesignSheet } from "../layout/DesignSheet";
 import { HelpCircle } from "lucide-react";
@@ -302,7 +303,19 @@ export function Canvas() {
               )}
             </div>
           </DesignSheet>
-          
+
+          {/* Selection overlay — renders outside DesignSheet so handles are never clipped */}
+          {selectedId && selectedId !== "canvas-background" && (() => {
+            const el = [...elements, ...streamingElements].find((e) => e.id === selectedId);
+            if (!el) return null;
+            return (
+              <SelectionChrome
+                element={el}
+                canvasBounds={{ width: canvasWidth, height: canvasHeight }}
+              />
+            );
+          })()}
+
           <FloatingToolbar scale={scale} />
         </div>
       </div>

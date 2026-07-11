@@ -3,13 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { CanvasElement as CanvasElementType } from "../../lib/types/canvas";
-import { Image, Trash2, RotateCw } from "lucide-react";
-import {
-  useDrag,
-  useResize,
-  useRotate,
-} from "../../hooks/canvas";
-import type { ResizeHandle } from "../../hooks/canvas";
+import { Image } from "lucide-react";
+import { useDrag } from "../../hooks/canvas";
 import {
   pointsToString,
   computePathViewBox,
@@ -23,19 +18,8 @@ interface DraggableElementProps {
   onUpdate: (updates: Partial<CanvasElementType>) => void;
   canvasBounds: { width: number; height: number };
   isStreaming?: boolean;
+  elementRef?: React.RefObject<HTMLDivElement | null>;
 }
-
-const CORNERS: { pos: string; handle: ResizeHandle }[] = [
-  { pos: "-top-1 -left-1", handle: "tl" },
-  { pos: "-top-1 -right-1", handle: "tr" },
-  { pos: "-bottom-1 -left-1", handle: "bl" },
-  { pos: "-bottom-1 -right-1", handle: "br" },
-];
-
-const SIDES: { pos: string; handle: ResizeHandle; className: string }[] = [
-  { pos: "top-1/2 -left-1.5 -translate-y-1/2", handle: "l", className: "w-1.5 h-4" },
-  { pos: "top-1/2 -right-1.5 -translate-y-1/2", handle: "r", className: "w-1.5 h-4" },
-];
 
 export function DraggableElement({
   element,
@@ -76,15 +60,6 @@ export function DraggableElement({
     onSelect,
     onUpdate,
   });
-
-  const { handleResizeStart } = useResize({
-    element,
-    canvasBounds,
-    elementRef,
-    onUpdate,
-  });
-
-  const { handleRotateStart } = useRotate({ element, elementRef, onUpdate });
 
   // --- Editing ---
 
@@ -296,6 +271,7 @@ export function DraggableElement({
   return (
     <div
       ref={elementRef}
+      data-element-id={element.id}
       className={`absolute cursor-move group ${
         isStreaming ? "opacity-70 pointer-events-none animate-pulse" : ""
       }`}
@@ -321,49 +297,9 @@ export function DraggableElement({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Hover border (only if not selected) */}
+      {/* Hover border (only if not hovered + not selected/multi-selected) */}
       {isHovered && !isSelected && !isMultiSelected && (
         <div className="absolute -inset-0.5 border-2 border-pink-300 pointer-events-none" />
-      )}
-
-      {/* Selection border */}
-      {isSelected && (
-        <>
-          <div className="absolute -inset-0.5 border-2 border-pink-500 pointer-events-none" />
-
-          {/* Rotation handle */}
-          <div
-            onMouseDown={handleRotateStart}
-            className="absolute -bottom-9 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white border-2 border-pink-500 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
-          >
-            <RotateCw className="w-2.5 h-2.5 text-pink-500" />
-          </div>
-
-          {CORNERS.map(({ pos, handle }) => (
-            <div
-              key={handle}
-              onMouseDown={(e) => handleResizeStart(e, handle)}
-              className={`absolute w-2 h-2 bg-white border-2 border-pink-500 ${pos}`}
-              style={{
-                cursor:
-                  handle === "tl" || handle === "br"
-                    ? "nwse-resize"
-                    : "nesw-resize",
-              }}
-            />
-          ))}
-
-          {isText && SIDES.map(({ pos, handle, className }) => (
-            <div
-              key={handle}
-              onMouseDown={(e) => handleResizeStart(e, handle)}
-              className={`absolute bg-white border-2 border-pink-500 rounded-full ${className} ${pos}`}
-              style={{
-                cursor: "ew-resize",
-              }}
-            />
-          ))}
-        </>
       )}
 
       {isMultiSelected && (
