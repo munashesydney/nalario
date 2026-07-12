@@ -84,7 +84,7 @@ export default function WorkspaceHomePage({
   }
 
   return (
-    <div className="flex flex-col space-y-8 animate-in fade-in duration-500">
+    <div className="flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
       <div className="bg-white p-8 rounded-none border-2 border-zinc-200 relative overflow-hidden">
         <div className="relative z-10 flex flex-col items-start md:flex-row md:items-center justify-between gap-4">
